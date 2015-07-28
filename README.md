@@ -72,7 +72,7 @@
       (value1[,value2,...])
       
   
- NOTE: This software is not complete.  To do list:
+ NOTE: This software is incomplete.  To do list:
  
      More syntax checks
      Token array not being populated correctly
