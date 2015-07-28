@@ -1,73 +1,81 @@
 /*
- StringQuery v 0.1
+
+StringQuery v 0.1
  
- A little query language that can be embedded in a URL.
+A little query language that can be embedded in a URL.
  
- Copyright (c) 2015, Andrew Schools <andrewschools@me.com>
- Permission is hereby granted, free of charge, to any
- person obtaining a copy of this software and associated
- documentation files (the "Software"), to deal in the
- Software without restriction, including without
- limitation the rights to use, copy, modify, merge,
- publish, distribute, sublicense, and/or sell copies
- of the Software, and to permit persons to whom the
- Software is furnished to do so, subject to the
- following conditions:
- The above copyright notice and this permission notice
- shall be included in all copies or substantial portions
- of the Software.
+The MIT License (MIT)
+
+Copyright (c) 2015 Andrew Schools
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
  
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
- 
- Valid statement syntax: 
-     Entity : Type Operator Filter
+Valid statement syntax: 
+    Entity : Type Operator Filter
   
- Entity specifies the resource to apply the filter against.
+Entity specifies the resource to apply the filter against.
   
- Type specifies the data type of the resource.  The following data types are 
- supported:
-     String
-     Int
-     Double
+Type specifies the data type of the resource.  The following data types are 
+supported:
+    String
+    Int
+    Double
      
- The following operators are supported:
-     =
-     !=
-     >
-     <
-     >=
-     <=
-     ?
+The following operators are supported:
+    =
+    !=
+    >
+    <
+    >=
+    <=
+    ?
      
- Filters can be any of the supported types or a collection of types known as 
- a List.  Example comparing Entity against a single value:
+Filters can be any of the supported types or a collection of types known as 
+a List.  Example comparing Entity against a single value:
  
-     FirstName:String='Andrew'
+    FirstName:String='Andrew'
      
- You can concatenate multiple statements by using one of the following logical
- operators:
-     &
-     |     
+You can concatenate multiple statements by using one of the following logical
+operators:
+    &
+    |     
      
- If I want to search for multiple names:
-     FirstName:String='Andrew'|FirstName:String='Doug'
+If I want to search for multiple names:
+    FirstName:String='Andrew'|FirstName:String='Doug'
  
- Which can be shortened by using a List:
-     FirstName:String=('Andrew','Doug')
+Which can be shortened by using a List:
+    FirstName:String=('Andrew','Doug')
         
- Each item in a List is separated by a ','.
+Each item in a List is separated by a ','.
  
- Valid List syntax:
-      (value1[,value2,...])
+Valid List syntax:
+     (value1[,value2,...])
      
+
+Parser Options:
+
+-f <file>        Parse code from <file>.   
+-v               Version number
+-c <code>        Parse code            
+
       
- */
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -79,14 +87,17 @@
 #define MSG_NO_CODE_TO_PROCESS "No code to process"
 #define EXIT_NO_CODE_TO_PROCESS 1
 
+#define MSG_TOO_MUCH_CODE_TO_PROCESS "Too much code to process"
+#define EXIT_TOO_MUCH_CODE_TO_PROCESS 2
+
 #define MSG_UNRECOGNIZED_TOKEN "Unrecognized token"
-#define EXIT_UNRECOGNIZED_TOKEN 2
+#define EXIT_UNRECOGNIZED_TOKEN 3
 
 #define MSG_INVALID_CHARACTER "Invalid Character"
-#define EXIT_INVALID_CHARACTER 3
+#define EXIT_INVALID_CHARACTER 4
 
 #define MSG_INVALID_SYNTAX "Syntax Error"
-#define EXIT_INVALID_SYNTAX 4
+#define EXIT_INVALID_SYNTAX 5
 
 #define TOKEN_ENTITY "TOKEN_ENTITY"
 #define TOKEN_ENTITY_TYPE "TOKEN_ENTITY_TYPE"
@@ -95,13 +106,14 @@
 #define TOKEN_ENTITY_OR_END "TOKEN_ENTITY_OR_END"
 
 int parse();
-void print_error(char[], int);
-void exception(char[], char[]);
 int get_statement();
 int is_end();
 
+void print_error(char[], int);
+void exception(char[], char[], int);
+
 char* get_entity();
-char*get_entity_type();
+char* get_entity_type();
 char* get_operator();
 char* get_filter(char*);
 char* get_logic_op();
@@ -147,8 +159,9 @@ char* get_entity() {
         cursor++;
     }
     
-    char entity[100];
-    char* p_entity = (char*)malloc(sizeof(char*));
+    char entity[100] = {};
+    char* p_entity = (char*)malloc(100);
+    strcpy(p_entity, entity);
     
     int length = substr(code, start, cursor, &p_entity);
     
@@ -191,8 +204,9 @@ char* get_entity_type() {
         cursor++;
     }
     
-    char entity_type[100];
-    char* p_entity_type = (char*)malloc(sizeof(char*));
+    char entity_type[10] = {};
+    char* p_entity_type = (char*)malloc(10);
+    strcpy(p_entity_type, entity_type);
     
     int length = substr(code, start, cursor, &p_entity_type);
     
@@ -240,8 +254,9 @@ char* get_operator() {
         cursor++;
     }
     
-    char operator[2];
-    char* p_operator = (char*)malloc(sizeof(char*));
+    char operator[3] = {};
+    char* p_operator = (char*)malloc(3);
+    strcpy(p_operator, operator);
     
     int length = substr(code, start, cursor, &p_operator);
     
@@ -258,9 +273,6 @@ char* get_filter(char* type) {
     char quote_type; // remember starting quote
     
     while (code[cursor] != '\0') {
-        if (code[cursor] == quote_type && inside_string == 1)
-            break;
-        
         if ((code[cursor] == '&' || code[cursor] == '|') && inside_string == 0) {
             cursor--;
             break;
@@ -280,8 +292,9 @@ char* get_filter(char* type) {
        cursor++;
     }
     
-    char filter[200];
-    char* p_filter = (char*)malloc(sizeof(char*));
+    char filter[100] = {};
+    char* p_filter = (char*)malloc(100);
+    strcpy(p_filter, filter);
     
     int length = substr(code, start, cursor, &p_filter);
     
@@ -293,8 +306,9 @@ char* get_filter(char* type) {
 }
 
 char* get_logic_op() {    
-    char logic_op[2];
-    char* p_logic_op = (char*)malloc(sizeof(char*));
+    char logic_op[2] = {};
+    char* p_logic_op = (char*)malloc(2);
+    strcpy(p_logic_op, logic_op);
     
     int length = substr(code, cursor-1, cursor-1, &p_logic_op);
     
@@ -363,6 +377,13 @@ void validate_entity(char value[], int length) {
                 sprintf(msg, "Invalid character '%c' in Entity '%s'", value[i], value);
                 print_error(msg, EXIT_INVALID_CHARACTER);
         }
+    }
+    
+    int x = strlen(value);
+    
+    if (x == 0) {
+        sprintf(msg, "Entity must be at least one character long");
+        print_error(msg, EXIT_INVALID_CHARACTER);
     }
 }
 
@@ -446,7 +467,7 @@ void validate_filter(char* type, char value[], int length) {
             validate_double(value, length);
         } else {
             sprintf(msg, "Unknown type: %s\n", type);
-            exception(msg, "validate_filter");
+            exception(msg, "validate_filter", EXIT_INVALID_SYNTAX);
         }
     }
 }
@@ -502,7 +523,7 @@ void validate_list(char* type, char value[], int length) {
     } else if(strcmp(type, "String") == 0) {
         validate_list_string(value, length);
     } else {
-        exception("Unknown list type: %s", type);
+        exception("Unknown list type: %s", type, EXIT_INVALID_SYNTAX);
     }
 }
 
@@ -540,11 +561,49 @@ void validate_list_string(char value[], int length) {
 
 
 void validate_list_int(char value[], int length) {
+    int i = 1;
+    int x = 0;
+    char newstr[100] = {};
     
+    // We need to remove '(' and ')' characters
+    for (; i<length-1; i++) {
+        if (value[i] == ' ')
+            continue; // skip spaces
+            
+        newstr[x++] = value[i];
+    }
+    
+    char* token;
+    token = strtok(newstr, ",");
+    
+    while (token != NULL) {
+        int l = strlen(token);
+        validate_int(token, l);
+        token = strtok (NULL, ",");
+    }
 }
 
 void validate_list_double(char value[], int length) {
+    int i = 1;
+    int x = 0;
+    char newstr[100] = {};
     
+    // We need to remove '(' and ')' characters
+    for (; i<length-1; i++) {
+        if (value[i] == ' ')
+            continue; // skip spaces
+            
+        newstr[x++] = value[i];
+    }
+    
+    char* token;
+    token = strtok(newstr, ",");
+    
+    while (token != NULL) {
+        int l = strlen(token);
+        validate_double(token, l);
+        token = strtok (NULL, ",");
+    }
 }
 
 void validate_int(char value[], int length) {
@@ -630,9 +689,9 @@ void print_error(char msg[], int exit_code) {
     exit(exit_code);
 }
 
-void exception(char msg[], char func[]) {
-    printf("Exception: %s\nFunction:%s\n", msg, func);
-    exit(1); 
+void exception(char msg[], char func[], int exit_code) {
+    printf("Exception: %s @ Function: %s\n", msg, func);
+    exit(exit_code); 
 }
 
 int str_length(char str[]) {
@@ -664,20 +723,15 @@ int substr(char* str, int start, int end, char** substr) {
 
 int get_statement() {
     char* p_entity = get_entity();
-    printf("Entity: %s\n", p_entity);
     char* p_type = get_entity_type();
-    printf("Type: %s\n", p_type);
     char* p_operator = get_operator();
-    printf("Operator: %s\n", p_operator);
     char* p_filter = get_filter(p_type);
-    printf("Filter: %s\n", p_filter);
     char* p_logic_op;
     
     int end = is_end();
     
     if (end != 0) {
         p_logic_op = get_logic_op();
-        printf("Logic Op: %s\n", p_logic_op);
     }
     
     Statement* pst = (Statement*)malloc(sizeof(Statement));
@@ -702,18 +756,50 @@ int main(int argc, const char* argv[]) {
     
     printf ("StringQuery 0.1.\n");
     
-    if (argc <2)
-        exception(MSG_NO_CODE_TO_PROCESS, "main");
-    
-    strcpy(code, argv[1]);
-    parse();
-    
-    
-    for (; i<statement_index; i++) {
-        //printf("Entity: %s\n", statements[i]->entity);
-        //printf("Type: %s\n", statements[i]->type);
-        //printf("Operator: %s\n", statements[i]->operator);
-        //printf("Filter: %s\n", statements[i]->filter);
+    for (i=1; i<argc; i++) { 
+        if (strcmp(argv[i], "-c") == 0) {
+            if (argc <= i+1) {
+                exception(MSG_NO_CODE_TO_PROCESS, "main", EXIT_NO_CODE_TO_PROCESS);
+            }
+            
+            int x = strlen(argv[i+1]);
+            
+            if (x >= CODE_BUFFER_LENGTH) {
+                exception(MSG_TOO_MUCH_CODE_TO_PROCESS, "main", EXIT_TOO_MUCH_CODE_TO_PROCESS);
+            }
+            
+            strcpy(code, argv[i+1]);
+            parse();
+        } else if (strcmp(argv[i], "-f") == 0) {
+            if (strcmp(argv[i+1], "") != 0) {
+                exception(MSG_NO_CODE_TO_PROCESS, "main", EXIT_NO_CODE_TO_PROCESS);
+            } else {
+                FILE *fp;
+                char c;
+                int x = 0;
+                
+                fp = fopen(argv[i+1], "r");
+                
+                while ((c = fgetc(fp)) != EOF) {
+                    if (x >= CODE_BUFFER_LENGTH) {
+                        exception(MSG_TOO_MUCH_CODE_TO_PROCESS, "main", EXIT_TOO_MUCH_CODE_TO_PROCESS);
+                    }
+                     
+                    code[x++] = c;
+                }
+
+                strcpy(code, argv[i+1]);
+                parse();
+            }
+        }
+    }
+
+    for (i=0; i<statement_index; i++) {
+        printf("Entity: %s\n", statements[i]->entity);
+        printf("Type: %s\n", statements[i]->type);
+        printf("Operator: %s\n", statements[i]->operator);
+        printf("Filter: %s\n", statements[i]->filter);
+        printf("Logic Op: %s\n", statements[i]->logic);
     }
     
     
