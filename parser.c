@@ -108,6 +108,7 @@ Parser Options:
 int parse();
 int get_statement();
 int is_end();
+void toJSON();
 
 void print_error(char[], int);
 void exception(char[], char[], int);
@@ -719,6 +720,35 @@ int substr(char* str, int start, int end, char** substr) {
     strcpy(*substr, buffer);
     
     return i;
+}
+
+void toJSON() {
+    int i = 0;
+    
+    printf("[\n");
+    
+    for (; i<statement_index; i++) {
+        printf("  {\n");
+        printf("    'Entity': '%s',\n", statements[i]->entity);
+        printf("    'Type': '%s',\n", statements[i]->type);
+        printf("    'Operator': '%s',\n", statements[i]->operator);
+        
+        if (statements[i]->filter[0] == '\'' || statements[i]->filter[0] == '"') {
+            printf("    'Filter': %s,\n", statements[i]->filter);
+        } else {
+            printf("    'Filter': '%s',\n", statements[i]->filter);
+        }
+        
+        printf("    'Concat': '%s'\n", statements[i]->logic);
+        printf("  }");
+        
+         if (i < statement_index-1)
+           printf(",");
+           
+        printf("\n");
+    }
+    
+    printf("];\n");
 } 
 
 int get_statement() {
@@ -730,9 +760,8 @@ int get_statement() {
     
     int end = is_end();
     
-    if (end != 0) {
+    if (end != 0)
         p_logic_op = get_logic_op();
-    }
     
     Statement* pst = (Statement*)malloc(sizeof(Statement));
     
@@ -793,15 +822,8 @@ int main(int argc, const char* argv[]) {
             }
         }
     }
-
-    for (i=0; i<statement_index; i++) {
-        printf("Entity: %s\n", statements[i]->entity);
-        printf("Type: %s\n", statements[i]->type);
-        printf("Operator: %s\n", statements[i]->operator);
-        printf("Filter: %s\n", statements[i]->filter);
-        printf("Logic Op: %s\n", statements[i]->logic);
-    }
     
+    toJSON();
     
     return 0;
 }
