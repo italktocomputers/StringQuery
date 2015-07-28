@@ -30,9 +30,7 @@
   
  Entity specifies the resource to apply the filter against.
   
- Type specifies the data type of the resource.
-  
- The following data types are supported:
+ Type specifies the data type of the resource.  The following data types are supported:
  
      String
      Int
