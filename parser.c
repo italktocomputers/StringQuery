@@ -99,6 +99,9 @@ Parser Options:
 #define MSG_INVALID_SYNTAX "Syntax Error"
 #define EXIT_INVALID_SYNTAX 5
 
+#define MSG_RESERVED_KEYWORD "Reserved keyword"
+#define EXIT_RESERVED_KEYWORD 6
+
 #define TOKEN_ENTITY "TOKEN_ENTITY"
 #define TOKEN_ENTITY_TYPE "TOKEN_ENTITY_TYPE"
 #define TOKEN_OPERATOR "TOKEN_OPERATOR"
@@ -386,6 +389,22 @@ void validate_entity(char value[], int length) {
         sprintf(msg, "Entity must be at least one character long");
         print_error(msg, EXIT_INVALID_CHARACTER);
     }
+    
+    int reserved_error = 0;
+    
+    if (strcmp(value, "String") == 0)
+        reserved_error = 1;
+        
+    if (strcmp(value, "Int") == 0)
+        reserved_error = 1;
+    
+    if (strcmp(value, "Double") == 0)
+        reserved_error = 1;
+        
+    if (reserved_error == 1) {
+        sprintf(msg, MSG_RESERVED_KEYWORD);
+        print_error(msg, EXIT_RESERVED_KEYWORD);
+    }
 }
 
 void validate_entity_type(char value[], int length) {
@@ -414,6 +433,7 @@ void validate_operator(char value[], int length) {
     if (strcmp(value, "=") == 0) {
         ok = 1;
         
+        // We are making an assumptions here 
         if (code[cursor+1] == '=') {
             sprintf(msg, "Use '=' instead of '=='");
             print_error(msg, EXIT_INVALID_CHARACTER);
@@ -454,8 +474,8 @@ void validate_operator(char value[], int length) {
 void validate_filter(char* type, char value[], int length) {
     char msg[100];
 
-    // Since we can have different types of filters, we need to first figure
-    // out what type of filter this is.
+    // Since we can have filters of different types, we need to figure out what 
+    // type of filter this is; String, Double, Int, List
     
     if (value[0] == '(') {
         validate_list(type, value, length);
@@ -484,7 +504,6 @@ void validate_logic_op(char value[], int length) {
 }
 
 void validate_string(char value[], int length) {
-    // Let's make sure that there is an ending quote
     int i = 0;
     char msg[100];
     
