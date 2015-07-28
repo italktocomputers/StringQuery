@@ -74,7 +74,14 @@
   
  NOTE: This software is incomplete.  To do list:
  
-     More syntax checks
-     Token array not being populated correctly
-     Need to allow export of token array to JSON and maybe other formats
-     Logical operators not being captured in token array
+     - More syntax checks
+     - Token array not being populated correctly
+     - Need to allow export of token array to JSON and maybe other formats
+     - Logical operators not being captured in token array
+     - Need to add support for aggregate functions:
+             AVG
+             COUNT
+             MAX
+             MIN
+             SUM
+     - Need to provide syntax for the retrieval of fields
