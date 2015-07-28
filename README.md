@@ -70,3 +70,11 @@
  Valid List syntax:
  
       (value1[,value2,...])
+      
+  
+ NOTE: This software is not complete.  To do list:
+ 
+     More syntax checks
+     Token array not being populated correctly
+     Need to allow export of token array to JSON and maybe other formats
+     Logical operators not being captured in token array
