@@ -508,6 +508,7 @@ void validate_string(char value[], int length) {
     char msg[100];
     
     if (value[0] != '\'' && value[0] != '"') {
+        cursor -= length;
         sprintf(msg, "String must start with a ''' or a '\"' but got '%c' instead", value[0]);
         print_error(msg, EXIT_INVALID_CHARACTER);
     }
@@ -515,6 +516,24 @@ void validate_string(char value[], int length) {
     if (value[0] != value[length-1]) {
         sprintf(msg, "String must have matching ending quote but got '%c' instead", value[length]);
         print_error(msg, EXIT_INVALID_CHARACTER);
+    } else {
+        if (value[length-2] == '\\') {
+            // Ending quote was escaped
+            cursor -= length;
+            sprintf(msg, "String was not closed", value[length-1]);
+            print_error(msg, EXIT_INVALID_CHARACTER);
+        }
+    }
+    
+    // We need to make sure they are not using their starting/ending quote
+    // within their string without escaping it.
+    for (i=1; i<length-1; i++) {
+        if (value[0] == value[i]) {
+            if (value[i-1] != '\\') {
+                sprintf(msg, "Quote must be escaped within string", value[length]);
+                print_error(msg, EXIT_INVALID_CHARACTER);
+            }
+        }
     }
 }
 
@@ -548,34 +567,25 @@ void validate_list(char* type, char value[], int length) {
 }
 
 void validate_list_string(char value[], int length) {
-    int i = 0;
+    int i = 1;
     int x = 0;
-    char msg[100];
-    int inside_string = 0;
-    char quote_type; // remember starting quote
+    char newstr[100] = {};
     
-    for (; i<length; i++) {
-        if (value[i] == '\'' || value[i] == '"') {
-            if (inside_string == 1 && quote_type == value[i]) {
-                // We found the ending quote so we are no longer in a string
-                inside_string = 0;
-            } else {
-                // Found a starting quote so we are now in a string
-                inside_string = 1;
-                quote_type = value[i];
-            }
-        }
-        
-         // If we are not in a string, the next character must be a space or one
-         // of the following characters: ' " , ( )
-        if (inside_string == 0 && value[i] != '\'' && 
-            value[i] != '"' && value[i] != ',' &&
-            value[i] != '(' && value[i] != ')' &&
-            value[i] != ' ') {
-            cursor = cursor - (length-1) + i;
-            sprintf(msg, "Syntax error.  Expecting a ''', '\"' or ',' but got '%c' instead", value[i]);
-            print_error(msg, EXIT_INVALID_CHARACTER);
-        }
+    // We need to remove '(' and ')' characters
+    for (; i<length-1; i++) {
+        if (value[i] == ' ')
+            continue; // skip spaces
+            
+        newstr[x++] = value[i];
+    }
+    
+    char* token;
+    token = strtok(newstr, ",");
+    
+    while (token != NULL) {
+        int l = strlen(token);
+        validate_string(token, l);
+        token = strtok (NULL, ",");
     }
 }
 
