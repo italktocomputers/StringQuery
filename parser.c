@@ -116,6 +116,7 @@ int parse();
 int get_statement();
 int is_end();
 void toJSON();
+void toSQL();
 int remove_newline(char[], int, char**);
 
 void print_error(char[], int);
@@ -141,7 +142,7 @@ void validate_list_string(char[], int);
 void validate_list_double(char[], int);
 void validate_list_int(char[], int);
 
-int statement_index = 0;
+int sts_index = 0;
 int cursor = 0;
 char code[CODE_BUFFER_LENGTH] = {};
 char errMsg[100];
@@ -154,7 +155,7 @@ typedef struct Statement {
     char* logic;
 } Statement;
 
-Statement* statements[STATEMENTS_ARRAY_LENGTH];
+Statement* sts[STATEMENTS_ARRAY_LENGTH];
 
 char* get_entity() {
     int start = cursor;
@@ -772,29 +773,74 @@ void toJSON() {
     
     printf("[\n");
     
-    for (; i<statement_index; i++) {
+    for (; i<sts_index; i++) {
         printf(" {\n");
-        printf("  'Entity': '%s',\n", statements[i]->entity);
-        printf("  'Type': '%s',\n", statements[i]->type);
-        printf("  'Operator': '%s',\n", statements[i]->operator);
+        printf("  'Entity': '%s',\n", sts[i]->entity);
+        printf("  'Type': '%s',\n", sts[i]->type);
+        printf("  'Operator': '%s',\n", sts[i]->operator);
         
-        if (statements[i]->filter[0] == '\'' || statements[i]->filter[0] == '"') {
-            printf("  'Filter': %s,\n", statements[i]->filter);
+        if (sts[i]->filter[0] == '\'' || sts[i]->filter[0] == '"') {
+            // We are dealing with a string so we don't want to quote the JSON
+            // property.  If we did, we would have double quoting.
+            // NOTE: We cannot use the type stored in the stuct to determine
+            // to quote or not to quote because we could have type 'String'
+            // but a List as the filter which we do NOT want to quote but instead,
+            // turn into a JSON array.
+            printf("  'Filter': %s,\n", sts[i]->filter);
         } else {
-            printf("  'Filter': '%s',\n", statements[i]->filter);
+            if (sts[i]->filter[0] == '(') {
+                // This is a List so we want to replace '(' and ')' with 
+                // '[' and ']' so it becomes a JSON array.
+                int x = 1;
+                char newfilter[100] = {};
+                int length = strlen(sts[i]->filter);
+                
+                // Replace '(' with '['
+                newfilter[0] = '[';
+                
+                // Copy rest of filter minus '(' and ')'
+                for (; x<length-1; x++) {
+                    newfilter[x] = sts[i]->filter[x];
+                }
+                
+                // Replace ')' with ']'
+                newfilter[length-1] = ']';
+                
+                printf("  'Filter': %s,\n", newfilter);
+            } else {
+                // Int or Double
+                printf("  'Filter': %s,\n", sts[i]->filter);
+            }
         }
         
-        printf("  'Concat': '%s'\n", statements[i]->logic);
+        printf("  'Concat': '%s'\n", sts[i]->logic);
         printf(" }");
         
-         if (i < statement_index-1)
+         if (i < sts_index-1)
            printf(",");
            
         printf("\n");
     }
     
     printf("];\n");
+}
+
+/*
+void toSQL() {
+    int i = 0;
+    char* sql = "where ";
+    
+    for (; i<statement_index; i++) {
+        char* filter;
+        if (strcmp(statements[i]->type, "String") == 0) {
+            sprintf(filter, "%s %s '%s' %s'", statements[i]->entity;
+            char* newstr = strncat(sql, filter, size_t n)
+        } else {
+        
+        }
+    }
 } 
+*/
 
 int get_statement() {
     char* p_entity = get_entity();
@@ -816,7 +862,7 @@ int get_statement() {
     pst->filter = p_filter;
     pst->logic = p_logic_op;
     
-    statements[statement_index++] = pst;
+    sts[sts_index++] = pst;
     
     return end;
 }
