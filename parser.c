@@ -116,6 +116,7 @@ int parse();
 int get_statement();
 int is_end();
 void toJSON();
+int remove_newline(char[], int, char**);
 
 void print_error(char[], int);
 void exception(char[], char[], int);
@@ -167,13 +168,11 @@ char* get_entity() {
         cursor++;
     }
     
-    char entity[100] = {};
     char* p_entity = (char*)malloc(100);
-    strcpy(p_entity, entity);
-    
     int length = substr(code, start, cursor, &p_entity);
+    int length2 = remove_newline(p_entity, length, &p_entity);
     
-    validate_entity(p_entity, length);
+    validate_entity(p_entity, length2);
     
     cursor+=2; // Increment by two because we also need to pass by the ':'
     
@@ -212,9 +211,7 @@ char* get_entity_type() {
         cursor++;
     }
     
-    char entity_type[10] = {};
     char* p_entity_type = (char*)malloc(10);
-    strcpy(p_entity_type, entity_type);
     
     int length = substr(code, start, cursor, &p_entity_type);
     
@@ -262,9 +259,7 @@ char* get_operator() {
         cursor++;
     }
     
-    char operator[3] = {};
     char* p_operator = (char*)malloc(3);
-    strcpy(p_operator, operator);
     
     int length = substr(code, start, cursor, &p_operator);
     
@@ -300,9 +295,7 @@ char* get_filter(char* type) {
        cursor++;
     }
     
-    char filter[100] = {};
     char* p_filter = (char*)malloc(100);
-    strcpy(p_filter, filter);
     
     int length = substr(code, start, cursor, &p_filter);
     
@@ -314,9 +307,7 @@ char* get_filter(char* type) {
 }
 
 char* get_logic_op() {    
-    char logic_op[2] = {};
     char* p_logic_op = (char*)malloc(2);
-    strcpy(p_logic_op, logic_op);
     
     int length = substr(code, cursor-1, cursor-1, &p_logic_op);
     
@@ -744,7 +735,7 @@ int substr(char* str, int start, int end, char** substr) {
     
     for (; i<=end-start; i++) {
         if (str[start+i] == '\0')
-            break;    
+            break;
         
         buffer[i] = str[start+i];
     }
@@ -754,6 +745,26 @@ int substr(char* str, int start, int end, char** substr) {
     strcpy(*substr, buffer);
     
     return i;
+}
+
+int remove_newline(char value[], int length, char** str) {
+    int i = 0;
+    int x = 0;
+    char tmp[100];
+    
+    for (; i<length; i++) {
+        if (value[i] == '\n')
+            continue;
+            
+        tmp[x++] = value[i];
+    }
+    
+    
+    tmp[x] = '\0';
+    
+    strcpy(*str, tmp);
+    
+    return x;
 }
 
 void toJSON() {
