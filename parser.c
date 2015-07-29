@@ -74,6 +74,10 @@ Parser Options:
 -v               Version number
 -c <code>        Parse code            
 
+To do / issues:
+
+- Error pointer not always pointing to correct location.
+- Trailing white spaces after a string throws a syntax error.
       
 */
 
@@ -527,6 +531,7 @@ void validate_string(char value[], int length) {
     
     // We need to make sure they are not using their starting/ending quote
     // within their string without escaping it.
+    // i=1 to skip start quote
     for (i=1; i<length-1; i++) {
         if (value[0] == value[i]) {
             if (value[i-1] != '\\') {
@@ -829,7 +834,7 @@ int main(int argc, const char* argv[]) {
             strcpy(code, argv[i+1]);
             parse();
         } else if (strcmp(argv[i], "-f") == 0) {
-            if (strcmp(argv[i+1], "") != 0) {
+            if (argc <= i+1) {
                 exception(MSG_NO_CODE_TO_PROCESS, "main", EXIT_NO_CODE_TO_PROCESS);
             } else {
                 FILE *fp;
@@ -845,8 +850,7 @@ int main(int argc, const char* argv[]) {
                      
                     code[x++] = c;
                 }
-
-                strcpy(code, argv[i+1]);
+                
                 parse();
             }
         }
