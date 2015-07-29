@@ -762,19 +762,19 @@ void toJSON() {
     printf("[\n");
     
     for (; i<statement_index; i++) {
-        printf("  {\n");
-        printf("    'Entity': '%s',\n", statements[i]->entity);
-        printf("    'Type': '%s',\n", statements[i]->type);
-        printf("    'Operator': '%s',\n", statements[i]->operator);
+        printf(" {\n");
+        printf("  'Entity': '%s',\n", statements[i]->entity);
+        printf("  'Type': '%s',\n", statements[i]->type);
+        printf("  'Operator': '%s',\n", statements[i]->operator);
         
         if (statements[i]->filter[0] == '\'' || statements[i]->filter[0] == '"') {
-            printf("    'Filter': %s,\n", statements[i]->filter);
+            printf("  'Filter': %s,\n", statements[i]->filter);
         } else {
-            printf("    'Filter': '%s',\n", statements[i]->filter);
+            printf("  'Filter': '%s',\n", statements[i]->filter);
         }
         
-        printf("    'Concat': '%s'\n", statements[i]->logic);
-        printf("  }");
+        printf("  'Concat': '%s'\n", statements[i]->logic);
+        printf(" }");
         
          if (i < statement_index-1)
            printf(",");
@@ -816,8 +816,6 @@ int parse() {
 
 int main(int argc, const char* argv[]) {
     int i = 0;
-    
-    printf ("StringQuery 0.1.\n");
     
     for (i=1; i<argc; i++) { 
         if (strcmp(argv[i], "-c") == 0) {
