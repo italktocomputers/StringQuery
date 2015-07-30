@@ -70,9 +70,9 @@ Valid List syntax:
 
 Parser Options:
 
--f <file>        Parse code from <file>.   
--v               Version number
--c <code>        Parse code            
+--file      <file>        Parse code from <file>.   
+--code      <code>        Parse code   
+--export    <JSON|SQL>    Export to what format         
 
 To do / issues:
 
@@ -108,6 +108,12 @@ To do / issues:
 
 #define MSG_RESERVED_KEYWORD "Reserved keyword"
 #define EXIT_RESERVED_KEYWORD 6
+
+#define MSG_NO_EXPORT_TYPE "You have not specified a export type"
+#define EXIT_NO_EXPORT_TYPE 7
+
+#define MSG_NO_CODE_SWITCH "Must specify --code or --file"
+#define EXIT_NO_CODE_SWITCH 8
 
 #define TOKEN_ENTITY "TOKEN_ENTITY"
 #define TOKEN_ENTITY_TYPE "TOKEN_ENTITY_TYPE"
@@ -779,24 +785,35 @@ int main(int argc, const char* argv[]) {
     int cursor = 0;
     char code[CODE_BUFFER_LENGTH] = {};
     Statement* sts[STATEMENTS_ARRAY_LENGTH];
+    int export_type = 0;
+    int code_switch = 0;
+    int file_switch = 0;
+    int export_switch = 0;
     
     for (i=1; i<argc; i++) { 
-        if (strcmp(argv[i], "-c") == 0) {
-            if (argc <= i+1) {
-                exception(MSG_NO_CODE_TO_PROCESS, "main", EXIT_NO_CODE_TO_PROCESS);
+        if (strcmp(argv[i], "--code") == 0) {
+            code_switch = 1;
+            
+            if (argv[i+1] == NULL) {
+                printf("ERROR: %s\n", MSG_NO_CODE_TO_PROCESS);
+                exit(EXIT_NO_CODE_TO_PROCESS);
             }
             
             int x = strlen(argv[i+1]);
             
             if (x >= CODE_BUFFER_LENGTH) {
-                exception(MSG_TOO_MUCH_CODE_TO_PROCESS, "main", EXIT_TOO_MUCH_CODE_TO_PROCESS);
+                printf("ERROR: %s\n", MSG_TOO_MUCH_CODE_TO_PROCESS);
+                exit(EXIT_TOO_MUCH_CODE_TO_PROCESS);
             }
             
             strcpy(code, argv[i+1]);
             parse(code, &cursor, sts, &sts_index);
-        } else if (strcmp(argv[i], "-f") == 0) {
-            if (argc <= i+1) {
-                exception(MSG_NO_CODE_TO_PROCESS, "main", EXIT_NO_CODE_TO_PROCESS);
+        } else if (strcmp(argv[i], "--file") == 0) {
+            file_switch = 1;
+            
+            if (argv[i+1] == NULL) {
+                printf("ERROR: %s\n", MSG_NO_CODE_TO_PROCESS);
+                exit(EXIT_NO_CODE_TO_PROCESS);
             } else {
                 FILE *fp;
                 char c;
@@ -806,7 +823,8 @@ int main(int argc, const char* argv[]) {
                 
                 while ((c = fgetc(fp)) != EOF) {
                     if (x >= CODE_BUFFER_LENGTH) {
-                        exception(MSG_TOO_MUCH_CODE_TO_PROCESS, "main", EXIT_TOO_MUCH_CODE_TO_PROCESS);
+                        printf("ERROR: %s\n", MSG_TOO_MUCH_CODE_TO_PROCESS);
+                        exit(EXIT_TOO_MUCH_CODE_TO_PROCESS);
                     }
                      
                     code[x++] = c;
@@ -814,10 +832,30 @@ int main(int argc, const char* argv[]) {
                 
                 parse(code, &cursor, sts, &sts_index);
             }
+        } else if (strcmp(argv[i], "--export") == 0) {
+            export_switch = 1;
+            
+            if (argv[i+1] == NULL) {
+                printf("ERROR: %s\n", MSG_NO_EXPORT_TYPE);
+                exit(EXIT_NO_EXPORT_TYPE);
+            }
+            
+            if (strcmp(argv[i+1], "SQL") == 0) {
+                export_type = 1;
+            }
         }
     }
     
-    toJSON(sts, sts_index);
+    if (code_switch == 0 && file_switch == 0) {
+        printf("ERROR: %s\n", MSG_NO_CODE_SWITCH);
+        exit(EXIT_NO_CODE_SWITCH);
+    }
+    
+    if (export_type == 0) {
+        toJSON(sts, sts_index);
+    } else {
+        toSQL(sts, sts_index);
+    }
     
     return 0;
 }
