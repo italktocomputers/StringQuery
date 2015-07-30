@@ -3,5 +3,6 @@ typedef struct Statement {
     char* type;
     char* operator;
     char* filter;
+    char* filter_type;
     char* logic;
 } Statement;
