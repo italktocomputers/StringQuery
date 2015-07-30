@@ -1,7 +1,37 @@
+#define MAX_SQL 60000
+
+static void buffer_checks(Statement* st) {
+    if (strlen(st->entity) >= ENTITY_MAX) {
+        printf(ENTITY_MAX_MSG);
+        exit(DEFAULT_EXIT);
+    }
+    
+    if (strlen(st->type) >= ENTITY_TYPE_MAX) {
+        printf(ENTITY_TYPE_MAX_MSG);
+        exit(DEFAULT_EXIT);
+    }
+    
+    
+    if (strlen(st->operator) >= OPERATOR_MAX) {
+        printf(OPERATOR_MAX_MSG);
+        exit(DEFAULT_EXIT);
+    }
+    
+    if (strlen(st->filter) >= FILTER_MAX) {
+        printf(FILTER_MAX_MSG);
+        exit(DEFAULT_EXIT);
+    }
+    
+    if (strlen(st->logic) >= LOGIC_OP_MAX) {
+        printf(LOGIC_OP_MAX_MSG);
+        exit(DEFAULT_EXIT);
+    }
+}
+
 static char* listToSQL(Statement* st, char* sql) {
     int i = 1;
     int x = 0;
-    char newstr[100] = {};
+    char newstr[FILTER_MAX] = {};
     int length = strlen(st->filter);
     
     // We need to remove '(' and ')' characters
@@ -29,9 +59,11 @@ static char* listToSQL(Statement* st, char* sql) {
 
 void toSQL(Statement* sts[], int sts_index) {
     int i = 0;
-    char sql[1000] = {};
+    char sql[MAX_SQL] = {};
     
     for (; i<sts_index; i++) {
+        buffer_checks(sts[i]);
+        
         if (strcmp(sts[i]->filter_type, "Scalar") == 0) {
             if (i > 0) {
                 if (strcmp(sts[i-1]->logic, "&") == 0) {

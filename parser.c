@@ -78,6 +78,8 @@ To do / issues:
 
 - Error pointer not always pointing to correct location.
 - Trailing white spaces after a string throws a syntax error.
+- Do not show entire line of code during error.  Hard to understand when longer
+  than a single line.
       
 */
 
@@ -88,32 +90,32 @@ To do / issues:
 #include "translators/JSON.c"
 #include "translators/SQL.c"
 
-#define STATEMENTS_ARRAY_LENGTH 100
-#define CODE_BUFFER_LENGTH 1000
+#define STATEMENTS_ARRAY_LENGTH 1000
+#define CODE_BUFFER_LENGTH 50000
 
 #define MSG_NO_CODE_TO_PROCESS "No code to process"
-#define EXIT_NO_CODE_TO_PROCESS 1
+#define EXIT_NO_CODE_TO_PROCESS 2
 
 #define MSG_TOO_MUCH_CODE_TO_PROCESS "Too much code to process"
-#define EXIT_TOO_MUCH_CODE_TO_PROCESS 2
+#define EXIT_TOO_MUCH_CODE_TO_PROCESS 3
 
 #define MSG_UNRECOGNIZED_TOKEN "Unrecognized token"
-#define EXIT_UNRECOGNIZED_TOKEN 3
+#define EXIT_UNRECOGNIZED_TOKEN 4
 
 #define MSG_INVALID_CHARACTER "Invalid Character"
-#define EXIT_INVALID_CHARACTER 4
+#define EXIT_INVALID_CHARACTER 5
 
 #define MSG_INVALID_SYNTAX "Syntax Error"
-#define EXIT_INVALID_SYNTAX 5
+#define EXIT_INVALID_SYNTAX 6
 
 #define MSG_RESERVED_KEYWORD "Reserved keyword"
-#define EXIT_RESERVED_KEYWORD 6
+#define EXIT_RESERVED_KEYWORD 7
 
 #define MSG_NO_EXPORT_TYPE "You have not specified a export type"
-#define EXIT_NO_EXPORT_TYPE 7
+#define EXIT_NO_EXPORT_TYPE 8
 
 #define MSG_NO_CODE_SWITCH "Must specify --code or --file"
-#define EXIT_NO_CODE_SWITCH 8
+#define EXIT_NO_CODE_SWITCH 9
 
 #define TOKEN_ENTITY "TOKEN_ENTITY"
 #define TOKEN_ENTITY_TYPE "TOKEN_ENTITY_TYPE"
@@ -124,7 +126,7 @@ To do / issues:
 static int parse(char[], int*, Statement*[], int*);
 static int get_statement(char[], int*, Statement*[], int*);
 static int is_end(char[], int*);
-static int substr(char*, int, int, char*);
+static int substr(char*, int, int, char*, int);
 static void toJSON(Statement*[], int);
 static int remove_newline(char[], int, char**);
 
@@ -153,6 +155,7 @@ static void validate_list_int(char[], int*, Statement*, char[], int);
 
 static void get_entity(char code[], int* cursor, Statement* st) {
     int start = *cursor;
+    
     while (code[*cursor] != '\0') {
         if (code[*cursor] == ':') {
             (*cursor)--;
@@ -162,8 +165,13 @@ static void get_entity(char code[], int* cursor, Statement* st) {
         (*cursor)++;
     }
     
-    char* p_entity = (char*)malloc(100);
-    int length = substr(code, start, *cursor, p_entity);
+    char* p_entity = (char*)malloc(ENTITY_MAX+1);
+    int length = substr(code, start, *cursor, p_entity, ENTITY_MAX);
+    
+    if (length == -1) {
+        print_error(code, cursor, ENTITY_MAX_MSG, EXIT_INVALID_CHARACTER);
+    }
+    
     int nlength = remove_newline(p_entity, length, &p_entity);
     
     validate_entity(code, cursor, st, p_entity, nlength);
@@ -206,9 +214,13 @@ static void get_entity_type(char code[], int* cursor, Statement* st) {
         (*cursor)++;
     }
     
-    char* p_entity_type = (char*)malloc(10);
+    char* p_entity_type = (char*)malloc(ENTITY_TYPE_MAX+1);
     
-    int length = substr(code, start, *cursor, p_entity_type);
+    int length = substr(code, start, *cursor, p_entity_type, ENTITY_TYPE_MAX);
+    
+    if (length == -1) {
+        print_error(code, cursor, ENTITY_TYPE_MAX_MSG, EXIT_INVALID_CHARACTER);
+    }
     
     validate_entity_type(code, cursor, st, p_entity_type, length);
     
@@ -254,9 +266,13 @@ static void get_operator(char code[], int* cursor, Statement* st) {
         (*cursor)++;
     }
     
-    char* p_operator = (char*)malloc(3);
+    char* p_operator = (char*)malloc(OPERATOR_MAX+1);
     
-    int length = substr(code, start, *cursor, p_operator);
+    int length = substr(code, start, *cursor, p_operator, OPERATOR_MAX);
+    
+    if (length == -1) {
+        print_error(code, cursor, OPERATOR_MAX_MSG, EXIT_INVALID_CHARACTER);
+    }
     
     validate_operator(code, cursor, st, p_operator, length);
     
@@ -290,9 +306,13 @@ static void get_filter(char code[], int* cursor, Statement* st, char* type) {
        (*cursor)++;
     }
     
-    char* p_filter = (char*)malloc(100);
+    char* p_filter = (char*)malloc(FILTER_MAX+1);
     
-    int length = substr(code, start, *cursor, p_filter);
+    int length = substr(code, start, *cursor, p_filter, FILTER_MAX);
+    
+    if (length == -1) {
+        print_error(code, cursor, FILTER_MAX_MSG, EXIT_INVALID_CHARACTER);
+    }
     
     validate_filter(code, cursor, st, type, p_filter, length);
     
@@ -302,9 +322,13 @@ static void get_filter(char code[], int* cursor, Statement* st, char* type) {
 }
 
 static void get_logic_op(char code[], int* cursor, Statement* st) {    
-    char* p_logic_op = (char*)malloc(2);
+    char* p_logic_op = (char*)malloc(OPERATOR_MAX+1);
     
-    int length = substr(code, *cursor-1, *cursor-1, p_logic_op);
+    int length = substr(code, *cursor-1, *cursor-1, p_logic_op, OPERATOR_MAX);
+    
+    if (length == -1) {
+        print_error(code, cursor, OPERATOR_MAX_MSG, EXIT_INVALID_CHARACTER);
+    }
     
     validate_logic_op(code, cursor, st, p_logic_op, length);
     
@@ -368,7 +392,7 @@ static void validate_entity(char code[], int* cursor, Statement* st, char value[
             case '|' :
             case '~' :
             case '`' :
-                sprintf(msg, "Invalid character '%c' in Entity '%s'", value[i], value);
+                sprintf(msg, "Invalid character '%c'", value[i]);
                 print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
     }
@@ -411,7 +435,12 @@ static void validate_entity_type(char code[], int* cursor, Statement* st, char v
         ok = 1;
     
     if (ok == 0) {
-        sprintf(msg, "Invalid type '%s'", value);
+        if (strlen(value) >= 50) {
+            sprintf(msg, "Invalid type");
+        } else {
+            sprintf(msg, "Invalid type '%s'", value);
+        }
+        
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
 }
@@ -456,7 +485,12 @@ static void validate_operator(char code[], int* cursor, Statement* st, char valu
         ok = 1;
     
     if (ok == 0) {
-        sprintf(msg, "Not a valid operator: '%s'", value);
+        if (strlen(value) >= 50) {
+            sprintf(msg, "Not a valid operator");
+        } else {
+            sprintf(msg, "Not a valid operator: '%s'", value);
+        }
+        
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
 }
@@ -481,7 +515,12 @@ static void validate_filter(char code[], int* cursor, Statement* st, char* type,
             validate_double(code, cursor, st, value, length);
             st->filter_type = "Scalar";
         } else {
-            sprintf(msg, "Unknown type: %s\n", type);
+            if (strlen(value) >= 50) {
+                sprintf(msg, "Unknown type\n");
+            } else {
+                sprintf(msg, "Unknown type: %s\n", type);
+            }
+            
             exception(msg, "validate_filter", EXIT_INVALID_SYNTAX);
         }
     }
@@ -652,7 +691,12 @@ static void validate_int(char code[], int* cursor, Statement* st, char value[], 
                 if (i == 0)
                     break;
             default:
-                sprintf(msg, "Not a integer: '%s'", value);
+                if (strlen(value) >= 50) {
+                    sprintf(msg, "Not a integer");
+                } else {
+                    sprintf(msg, "Not a integer: '%s'", value);
+                }
+                
                 print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
     }
@@ -684,13 +728,23 @@ static void validate_double(char code[], int* cursor, Statement* st, char value[
                 if (i == 0)
                     break;
             default:
-                sprintf(msg, "Not a decimal: '%s'", value);
+                if (strlen(value) >= 50) {
+                    sprintf(msg, "Not a decimal");
+                } else {
+                    sprintf(msg, "Not a decimal: '%s'", value);
+                }
+                
                 print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
     }
     
     if (dec > 1) {
-        sprintf(msg, "Too many decimals '%s'", value);
+        if (strlen(value) >= 50) {
+            sprintf(msg, "Too many decimals");
+        } else {
+            sprintf(msg, "Too many decimals '%s'", value);
+        }
+        
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
 }
@@ -719,11 +773,14 @@ static void exception(char msg[], char func[], int exit_code) {
     exit(exit_code); 
 }
 
-static int substr(char* str, int start, int end, char* substr) {
+static int substr(char* str, int start, int end, char* substr, int max) {
     int i = 0;
     char buffer[100];
     
     for (; i<=end-start; i++) {
+        if (i >= max)
+            return -1;
+        
         if (str[start+i] == '\0')
             break;
         
