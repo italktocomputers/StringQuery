@@ -825,23 +825,6 @@ void toJSON() {
     printf("];\n");
 }
 
-/*
-void toSQL() {
-    int i = 0;
-    char* sql = "where ";
-    
-    for (; i<statement_index; i++) {
-        char* filter;
-        if (strcmp(statements[i]->type, "String") == 0) {
-            sprintf(filter, "%s %s '%s' %s'", statements[i]->entity;
-            char* newstr = strncat(sql, filter, size_t n)
-        } else {
-        
-        }
-    }
-} 
-*/
-
 int get_statement() {
     char* p_entity = get_entity();
     char* p_type = get_entity_type();
