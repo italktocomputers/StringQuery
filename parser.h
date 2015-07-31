@@ -16,11 +16,11 @@
 #define DEFAULT_EXIT 1
 
 
-typedef struct Statement {
+struct Statement {
     char* entity;
     char* type;
     char* operator;
     char* filter;
     char* filter_type;
-    char* logic;
-} Statement;
+    char* concat;
+};

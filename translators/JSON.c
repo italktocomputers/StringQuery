@@ -1,4 +1,4 @@
-static void toJSON(Statement* sts[], int sts_index) {
+static void toJSON(struct Statement* sts[], int sts_index) {
     int i = 0;
     
     printf("[\n");
@@ -44,7 +44,7 @@ static void toJSON(Statement* sts[], int sts_index) {
         }
         
         printf("  'Filter_Type': '%s'\n", sts[i]->filter_type);
-        printf("  'Concat': '%s'\n", sts[i]->logic);
+        printf("  'Concat': '%s'\n", sts[i]->concat);
         printf(" }");
         
          if (i < sts_index-1)

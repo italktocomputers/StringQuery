@@ -1,6 +1,6 @@
 #define MAX_SQL 60000
 
-static void buffer_checks(Statement* st) {
+static void buffer_checks(struct Statement* st) {
     if (strlen(st->entity) > ENTITY_MAX+1) {
         printf(ENTITY_MAX_MSG);
         exit(DEFAULT_EXIT);
@@ -21,15 +21,15 @@ static void buffer_checks(Statement* st) {
         exit(DEFAULT_EXIT);
     }
     
-    if (st->logic != NULL) {
-        if (strlen(st->logic) > LOGIC_OP_MAX+1) {
+    if (st->concat != NULL) {
+        if (strlen(st->concat) > LOGIC_OP_MAX+1) {
             printf(LOGIC_OP_MAX_MSG);
             exit(DEFAULT_EXIT);
         }
     }
 }
 
-static char* listToSQL(Statement* st, char* sql) {
+static char* listToSQL(struct Statement* st, char* sql) {
     int i = 1;
     int x = 0;
     char newstr[FILTER_MAX+1] = {};
@@ -57,8 +57,8 @@ static char* listToSQL(Statement* st, char* sql) {
         }
     }
     
-    if (st->logic != NULL) {
-        if (strcmp(st->logic, "&") == 0) {
+    if (st->concat != NULL) {
+        if (strcmp(st->concat, "&") == 0) {
             strcat(sql, " AND ");
         } else {
             strcat(sql, " OR ");
@@ -66,7 +66,7 @@ static char* listToSQL(Statement* st, char* sql) {
     }
 }
 
-void toSQL(Statement* sts[], int sts_index) {
+void toSQL(struct Statement* sts[], int sts_index) {
     int i = 0;
     char sql[MAX_SQL] = {};
     
@@ -76,8 +76,8 @@ void toSQL(Statement* sts[], int sts_index) {
         if (strcmp(sts[i]->filter_type, "Scalar") == 0) {
             sprintf(sql + strlen(sql), "%s %s %s", sts[i]->entity, sts[i]->operator, sts[i]->filter);
             
-            if (sts[i]->logic != NULL) {
-                if (strcmp(sts[i]->logic, "&") == 0) {
+            if (sts[i]->concat != NULL) {
+                if (strcmp(sts[i]->concat, "&") == 0) {
                     strcat(sql, " AND ");
                 } else {
                     strcat(sql, " OR ");

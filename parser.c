@@ -72,7 +72,7 @@ Parser Options:
 
 --file      <file>        Parse code from <file>.   
 --code      <code>        Parse code   
---export    <JSON|SQL>    Export to what format         
+--export    <JSON|SQL>    Export to what format         Defaults to JSON       
 
 To do / issues:
 
@@ -112,6 +112,7 @@ To do / issues:
 #define EXIT_RESERVED_KEYWORD 7
 
 #define MSG_NO_EXPORT_TYPE "You have not specified a export type"
+#define MSG_NO_EXPORT_SUPPORT "Supported export formats: JSON, SQL"
 #define EXIT_NO_EXPORT_TYPE 8
 
 #define MSG_NO_CODE_SWITCH "Must specify --code or --file"
@@ -123,37 +124,39 @@ To do / issues:
 #define TOKEN_FILTER "TOKEN_FILTER"
 #define TOKEN_ENTITY_OR_END "TOKEN_ENTITY_OR_END"
 
-static int parse(char[], int*, Statement*[], int*);
-static int get_statement(char[], int*, Statement*[], int*);
+#define EXPORT_LENGTH 10
+
+static int parse(char[], int*, struct Statement*[], int*);
+static int get_statement(char[], int*, struct Statement*[], int*);
 static int is_end(char[], int*);
 static int substr(char*, int, int, char*, int);
-static void toJSON(Statement*[], int);
-static int remove_newline(char[], int, char**);
+static void toJSON(struct Statement*[], int);
+static int remove_newline(char[], int, char*);
 
 static void print_error(char[], int*, char[], int);
 static void exception(char[], char[], int);
 
-static void get_entity(char[], int*, Statement*);
-static void get_entity_type(char[], int*, Statement*);
-static void get_operator(char[], int*, Statement*);
-static void get_filter(char[], int*, Statement*, char*);
-static void get_logic_op(char[], int*, Statement*);
+static void get_entity(char[], int*, struct Statement*);
+static void get_entity_type(char[], int*, struct Statement*);
+static void get_operator(char[], int*, struct Statement*);
+static void get_filter(char[], int*, struct Statement*, char*);
+static void get_logic_op(char[], int*, struct Statement*);
 
-static void validate_entity(char[], int*, Statement*, char[], int);
-static void validate_entity_type(char[], int*, Statement*, char[], int);
-static void validate_operator(char[], int*, Statement*, char[], int);
-static void validate_filter(char[], int*, Statement*, char*, char[], int);
-static void validate_logic_op(char[], int*, Statement*, char[], int);
+static void validate_entity(char[], int*, struct Statement*, char[], int);
+static void validate_entity_type(char[], int*, struct Statement*, char[], int);
+static void validate_operator(char[], int*, struct Statement*, char[], int);
+static void validate_filter(char[], int*, struct Statement*, char*, char[], int);
+static void validate_logic_op(char[], int*, struct Statement*, char[], int);
 
-static void validate_string(char[], int*, Statement*, char[], int);
-static void validate_int(char[], int*, Statement*, char[], int);
-static void validate_double(char[], int*, Statement*, char[], int);
-static void validate_list(char[], int*, Statement*, char*, char[], int);
-static void validate_list_string(char[], int*, Statement*, char[], int);
-static void validate_list_double(char[], int*, Statement*, char[], int);
-static void validate_list_int(char[], int*, Statement*, char[], int);
+static void validate_string(char[], int*, struct Statement*, char[], int);
+static void validate_int(char[], int*, struct Statement*, char[], int);
+static void validate_double(char[], int*, struct Statement*, char[], int);
+static void validate_list(char[], int*, struct Statement*, char*, char[], int);
+static void validate_list_string(char[], int*, struct Statement*, char[], int);
+static void validate_list_double(char[], int*, struct Statement*, char[], int);
+static void validate_list_int(char[], int*, struct Statement*, char[], int);
 
-static void get_entity(char code[], int* cursor, Statement* st) {
+static void get_entity(char code[], int* cursor, struct Statement* st) {
     int start = *cursor;
     
     while (code[*cursor] != '\0') {
@@ -172,7 +175,7 @@ static void get_entity(char code[], int* cursor, Statement* st) {
         print_error(code, cursor, ENTITY_MAX_MSG, EXIT_INVALID_CHARACTER);
     }
     
-    int nlength = remove_newline(p_entity, length, &p_entity);
+    int nlength = remove_newline(p_entity, length, p_entity);
     
     validate_entity(code, cursor, st, p_entity, nlength);
     
@@ -182,7 +185,7 @@ static void get_entity(char code[], int* cursor, Statement* st) {
     st->entity = p_entity;
 }
 
-static void get_entity_type(char code[], int* cursor, Statement* st) {
+static void get_entity_type(char code[], int* cursor, struct Statement* st) {
     int start = *cursor;
 
     while (code[*cursor] != '\0') {
@@ -229,7 +232,7 @@ static void get_entity_type(char code[], int* cursor, Statement* st) {
     st->type = p_entity_type;
 }
 
-static void get_operator(char code[], int* cursor, Statement* st) {
+static void get_operator(char code[], int* cursor, struct Statement* st) {
     int start = *cursor;
     
     while (code[*cursor] != '\0') {
@@ -281,7 +284,7 @@ static void get_operator(char code[], int* cursor, Statement* st) {
     st->operator = p_operator;
 }  
 
-static void get_filter(char code[], int* cursor, Statement* st, char* type) {
+static void get_filter(char code[], int* cursor, struct Statement* st, char* type) {
     int start = *cursor;
     int inside_string = 0;
     char quote_type; // remember starting quote
@@ -321,7 +324,7 @@ static void get_filter(char code[], int* cursor, Statement* st, char* type) {
     st->filter = p_filter;
 }
 
-static void get_logic_op(char code[], int* cursor, Statement* st) {    
+static void get_logic_op(char code[], int* cursor, struct Statement* st) {    
     char* p_logic_op = (char*)malloc(OPERATOR_MAX+1);
     
     int length = substr(code, *cursor-1, *cursor-1, p_logic_op, OPERATOR_MAX);
@@ -332,7 +335,7 @@ static void get_logic_op(char code[], int* cursor, Statement* st) {
     
     validate_logic_op(code, cursor, st, p_logic_op, length);
     
-    st->logic = p_logic_op;
+    st->concat = p_logic_op;
 }
 
 static int is_end(char code[], int* cursor) {
@@ -344,7 +347,7 @@ static int is_end(char code[], int* cursor) {
     return 0;
 }
 
-static void validate_entity(char code[], int* cursor, Statement* st, char value[], int length) {
+static void validate_entity(char code[], int* cursor, struct Statement* st, char value[], int length) {
     int i = 0;
     char msg[100];
     
@@ -421,7 +424,7 @@ static void validate_entity(char code[], int* cursor, Statement* st, char value[
     }
 }
 
-static void validate_entity_type(char code[], int* cursor, Statement* st, char value[], int length) {
+static void validate_entity_type(char code[], int* cursor, struct Statement* st, char value[], int length) {
     int ok = 0;
     char msg[100];
     
@@ -445,7 +448,7 @@ static void validate_entity_type(char code[], int* cursor, Statement* st, char v
     }
 }
 
-static void validate_operator(char code[], int* cursor, Statement* st, char value[], int length) {
+static void validate_operator(char code[], int* cursor, struct Statement* st, char value[], int length) {
     int ok = 0;
     char msg[100];
     
@@ -495,7 +498,7 @@ static void validate_operator(char code[], int* cursor, Statement* st, char valu
     }
 }
 
-static void validate_filter(char code[], int* cursor, Statement* st, char* type, char value[], int length) {
+static void validate_filter(char code[], int* cursor, struct Statement* st, char* type, char value[], int length) {
     char msg[100];
 
     // Since we can have filters of different types, we need to figure out what 
@@ -526,7 +529,7 @@ static void validate_filter(char code[], int* cursor, Statement* st, char* type,
     }
 }
 
-static void validate_logic_op(char code[], int* cursor, Statement* st, char value[], int length) {
+static void validate_logic_op(char code[], int* cursor, struct Statement* st, char value[], int length) {
     char msg[100];
     
     if (value[0] != '&' && value[0] != '|') {
@@ -536,7 +539,7 @@ static void validate_logic_op(char code[], int* cursor, Statement* st, char valu
     }
 }
 
-static void validate_string(char code[], int* cursor, Statement* st, char value[], int length) {
+static void validate_string(char code[], int* cursor, struct Statement* st, char value[], int length) {
     int i = 0;
     char msg[100];
     
@@ -571,7 +574,7 @@ static void validate_string(char code[], int* cursor, Statement* st, char value[
     }
 }
 
-static void validate_list(char code[], int* cursor, Statement* st, char* type, char value[], int length) {
+static void validate_list(char code[], int* cursor, struct Statement* st, char* type, char value[], int length) {
     int i = 0;
     int ok = 0;
     char msg[100];
@@ -600,7 +603,7 @@ static void validate_list(char code[], int* cursor, Statement* st, char* type, c
     }
 }
 
-static void validate_list_string(char code[], int* cursor, Statement* st, char value[], int length) {
+static void validate_list_string(char code[], int* cursor, struct Statement* st, char value[], int length) {
     int i = 1;
     int x = 0;
     char newstr[100] = {};
@@ -624,7 +627,7 @@ static void validate_list_string(char code[], int* cursor, Statement* st, char v
 }
 
 
-static void validate_list_int(char code[], int* cursor, Statement* st, char value[], int length) {
+static void validate_list_int(char code[], int* cursor, struct Statement* st, char value[], int length) {
     int i = 1;
     int x = 0;
     char newstr[100] = {};
@@ -647,7 +650,7 @@ static void validate_list_int(char code[], int* cursor, Statement* st, char valu
     }
 }
 
-static void validate_list_double(char code[], int* cursor, Statement* st, char value[], int length) {
+static void validate_list_double(char code[], int* cursor, struct Statement* st, char value[], int length) {
     int i = 1;
     int x = 0;
     char newstr[100] = {};
@@ -670,7 +673,7 @@ static void validate_list_double(char code[], int* cursor, Statement* st, char v
     }
 }
 
-static void validate_int(char code[], int* cursor, Statement* st, char value[], int length) {
+static void validate_int(char code[], int* cursor, struct Statement* st, char value[], int length) {
     char msg[100];
     int i = 0;
     
@@ -703,7 +706,7 @@ static void validate_int(char code[], int* cursor, Statement* st, char value[], 
 }
 
 
-static void validate_double(char code[], int* cursor, Statement* st, char value[], int length) {
+static void validate_double(char code[], int* cursor, struct Statement* st, char value[], int length) {
     char msg[100];
     int i = 0;
     int dec = 0;
@@ -794,10 +797,10 @@ static int substr(char* str, int start, int end, char* substr, int max) {
     return i;
 }
 
-static int remove_newline(char value[], int length, char** str) {
+static int remove_newline(char value[], int length, char* str) {
     int i = 0;
     int x = 0;
-    char tmp[100];
+    char tmp[ENTITY_MAX];
     
     for (; i<length; i++) {
         if (value[i] == '\n')
@@ -809,13 +812,13 @@ static int remove_newline(char value[], int length, char** str) {
     
     tmp[x] = '\0';
     
-    strcpy(*str, tmp);
+    strncpy(str, tmp, ENTITY_MAX);
     
     return x;
 }
 
-static int get_statement(char code[], int* cursor, Statement* sts[], int* sts_index) {
-    Statement* pst = (Statement*)malloc(sizeof(Statement));
+static int get_statement(char code[], int* cursor, struct Statement* sts[], int* sts_index) {
+    struct Statement* pst = (struct Statement*)malloc(sizeof(struct Statement));
     
     get_entity(code, cursor, pst);
     get_entity_type(code, cursor, pst);
@@ -832,7 +835,7 @@ static int get_statement(char code[], int* cursor, Statement* sts[], int* sts_in
     return end;
 }
 
-static int parse(char code[], int* cursor, Statement* sts[], int* sts_index) {
+static int parse(char code[], int* cursor, struct Statement* sts[], int* sts_index) {
     while (get_statement(code, cursor, sts, sts_index) != 0);
 }
 
@@ -841,8 +844,8 @@ int main(int argc, const char* argv[]) {
     int sts_index = 0;
     int cursor = 0;
     char code[CODE_BUFFER_LENGTH] = {};
-    Statement* sts[STATEMENTS_ARRAY_LENGTH];
-    int export_type = 0;
+    struct Statement* sts[STATEMENTS_ARRAY_LENGTH];
+    char export_type[10];
     int code_switch = 0;
     int file_switch = 0;
     int export_switch = 0;
@@ -863,7 +866,7 @@ int main(int argc, const char* argv[]) {
                 exit(EXIT_TOO_MUCH_CODE_TO_PROCESS);
             }
             
-            strcpy(code, argv[i+1]);
+            strncpy(code, argv[i+1], CODE_BUFFER_LENGTH);
             parse(code, &cursor, sts, &sts_index);
         } else if (strcmp(argv[i], "--file") == 0) {
             file_switch = 1;
@@ -897,9 +900,7 @@ int main(int argc, const char* argv[]) {
                 exit(EXIT_NO_EXPORT_TYPE);
             }
             
-            if (strcmp(argv[i+1], "SQL") == 0) {
-                export_type = 1;
-            }
+            strncpy(export_type, argv[i+1], EXPORT_LENGTH);
         }
     }
     
@@ -908,10 +909,13 @@ int main(int argc, const char* argv[]) {
         exit(EXIT_NO_CODE_SWITCH);
     }
     
-    if (export_type == 0) {
+    if (strcmp(export_type, "JSON") == 0) {
         toJSON(sts, sts_index);
-    } else {
+    } else if(strcmp(export_type, "SQL") == 0) {
         toSQL(sts, sts_index);
+    } else {
+        printf("ERROR: %s\n", MSG_NO_EXPORT_SUPPORT);
+        exit(EXIT_NO_EXPORT_TYPE);
     }
     
     return 0;
