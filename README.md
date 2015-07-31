@@ -30,6 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  
 Valid statement syntax: 
+
     Entity : Type Operator Filter 
   
 Entity specifies the resource to apply the filter against.  In a relational 
@@ -54,7 +55,7 @@ The following operators are supported:
      
 Filters can be any of the supported types or a collection of types known as 
 a List.  Example comparing Entity against a single value:
- 
+
     FirstName:String='Andrew'
      
 You can concatenate multiple statements by using one of the following logical
@@ -74,17 +75,17 @@ Which can be shortened by using a List:
 Each item in a List is separated by a ','.
  
 Valid List syntax:
+
      (value1[,value2,...])
 
 Parser Options:
 
---file      <file>        Parse code from <file>.   
---code      <code>        Parse code   
---export    <JSON|SQL>    Export to what format         Defaults to JSON       
+    --file      <file>        Parse code from <file>.   
+    --code      <code>        Parse code   
+    --export    <JSON|SQL>    Export to what format         Defaults to JSON       
 
 To do / issues:
 
-- Error pointer not always pointing to correct location.
-- Trailing white spaces after a string throws a syntax error.
-- Do not show entire line of code during error.  Hard to understand when longer
-  than a single line.
+    - Error pointer not always pointing to correct location.
+    - Trailing white spaces after a string throws a syntax error.
+    - Do not show entire line of code during error.  Hard to understand when longer than a single line.
