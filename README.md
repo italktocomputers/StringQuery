@@ -1,4 +1,4 @@
-StringQuery v 0.1
+StringQuery v 0.1 (Alpha - DO NOT USE FOR PRODUCTION)
  
 A little query language that can be embedded in a URL.  Can be used for other
 purposes as well.  Includes syntax and validity checking.
@@ -89,3 +89,6 @@ To do / issues:
     - Error pointer not always pointing to correct location.
     - Trailing white spaces after a string throws a syntax error.
     - Do not show entire line of code during error.  Hard to understand when longer than a single line.
+    
+Note: THIS SOFTWARE IS IN ALPHA AND SHOULD NOT BE USED IN PRODUCTION.  I HAVE ONLY COMPILED USING GCC
+      ON CENTOS 6.6.

@@ -1,88 +1,3 @@
-/*
-
-StringQuery v 0.1
- 
-A little query language that can be embedded in a URL.
- 
-The MIT License (MIT)
-
-Copyright (c) 2015 Andrew Schools
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
- 
-Valid statement syntax: 
-    Entity : Type Operator Filter
-  
-Entity specifies the resource to apply the filter against.
-  
-Type specifies the data type of the resource.  The following data types are 
-supported:
-    String
-    Int
-    Double
-     
-The following operators are supported:
-    =
-    !=
-    >
-    <
-    >=
-    <=
-    ?
-     
-Filters can be any of the supported types or a collection of types known as 
-a List.  Example comparing Entity against a single value:
- 
-    FirstName:String='Andrew'
-     
-You can concatenate multiple statements by using one of the following logical
-operators:
-    &
-    |     
-     
-If I want to search for multiple names:
-    FirstName:String='Andrew'|FirstName:String='Doug'
- 
-Which can be shortened by using a List:
-    FirstName:String=('Andrew','Doug')
-        
-Each item in a List is separated by a ','.
- 
-Valid List syntax:
-     (value1[,value2,...])
-     
-
-Parser Options:
-
---file      <file>        Parse code from <file>.   
---code      <code>        Parse code   
---export    <JSON|SQL>    Export to what format         Defaults to JSON       
-
-To do / issues:
-
-- Error pointer not always pointing to correct location.
-- Trailing white spaces after a string throws a syntax error.
-- Do not show entire line of code during error.  Hard to understand when longer
-  than a single line.
-      
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -142,19 +57,19 @@ static void get_operator(char[], int*, struct Statement*);
 static void get_filter(char[], int*, struct Statement*, char*);
 static void get_logic_op(char[], int*, struct Statement*);
 
-static void validate_entity(char[], int*, struct Statement*, char[], int);
-static void validate_entity_type(char[], int*, struct Statement*, char[], int);
-static void validate_operator(char[], int*, struct Statement*, char[], int);
-static void validate_filter(char[], int*, struct Statement*, char*, char[], int);
-static void validate_logic_op(char[], int*, struct Statement*, char[], int);
+static void validate_entity(int, char[], int*, struct Statement*, char[], int);
+static void validate_entity_type(int, char[], int*, struct Statement*, char[], int);
+static void validate_operator(int, char[], int*, struct Statement*, char[], int);
+static void validate_filter(int, char[], int*, struct Statement*, char*, char[], int);
+static void validate_logic_op(int, char[], int*, struct Statement*, char[], int);
 
-static void validate_string(char[], int*, struct Statement*, char[], int);
-static void validate_int(char[], int*, struct Statement*, char[], int);
-static void validate_double(char[], int*, struct Statement*, char[], int);
-static void validate_list(char[], int*, struct Statement*, char*, char[], int);
-static void validate_list_string(char[], int*, struct Statement*, char[], int);
-static void validate_list_double(char[], int*, struct Statement*, char[], int);
-static void validate_list_int(char[], int*, struct Statement*, char[], int);
+static void validate_string(int, char[], int*, struct Statement*, char[], int);
+static void validate_int(int, char[], int*, struct Statement*, char[], int);
+static void validate_double(int, char[], int*, struct Statement*, char[], int);
+static void validate_list(int, char[], int*, struct Statement*, char*, char[], int);
+static void validate_list_string(int, char[], int*, struct Statement*, char[], int);
+static void validate_list_double(int, char[], int*, struct Statement*, char[], int);
+static void validate_list_int(int, char[], int*, struct Statement*, char[], int);
 
 static void get_entity(char code[], int* cursor, struct Statement* st) {
     int start = *cursor;
@@ -177,7 +92,7 @@ static void get_entity(char code[], int* cursor, struct Statement* st) {
     
     int nlength = remove_newline(p_entity, length, p_entity);
     
-    validate_entity(code, cursor, st, p_entity, nlength);
+    validate_entity(start, code, cursor, st, p_entity, nlength);
     
     // Increment by two because we also need to pass by the ':'
     *cursor+=2;
@@ -225,7 +140,7 @@ static void get_entity_type(char code[], int* cursor, struct Statement* st) {
         print_error(code, cursor, ENTITY_TYPE_MAX_MSG, EXIT_INVALID_CHARACTER);
     }
     
-    validate_entity_type(code, cursor, st, p_entity_type, length);
+    validate_entity_type(start, code, cursor, st, p_entity_type, length);
     
     (*cursor)++;
     
@@ -277,7 +192,7 @@ static void get_operator(char code[], int* cursor, struct Statement* st) {
         print_error(code, cursor, OPERATOR_MAX_MSG, EXIT_INVALID_CHARACTER);
     }
     
-    validate_operator(code, cursor, st, p_operator, length);
+    validate_operator(start, code, cursor, st, p_operator, length);
     
     (*cursor)++;
     
@@ -317,7 +232,7 @@ static void get_filter(char code[], int* cursor, struct Statement* st, char* typ
         print_error(code, cursor, FILTER_MAX_MSG, EXIT_INVALID_CHARACTER);
     }
     
-    validate_filter(code, cursor, st, type, p_filter, length);
+    validate_filter(start, code, cursor, st, type, p_filter, length);
     
     (*cursor)++;
     
@@ -333,7 +248,7 @@ static void get_logic_op(char code[], int* cursor, struct Statement* st) {
         print_error(code, cursor, OPERATOR_MAX_MSG, EXIT_INVALID_CHARACTER);
     }
     
-    validate_logic_op(code, cursor, st, p_logic_op, length);
+    validate_logic_op(*cursor, code, cursor, st, p_logic_op, length);
     
     st->concat = p_logic_op;
 }
@@ -347,7 +262,7 @@ static int is_end(char code[], int* cursor) {
     return 0;
 }
 
-static void validate_entity(char code[], int* cursor, struct Statement* st, char value[], int length) {
+static void validate_entity(int start, char code[], int* cursor, struct Statement* st, char value[], int length) {
     int i = 0;
     char msg[100];
     
@@ -358,7 +273,7 @@ static void validate_entity(char code[], int* cursor, struct Statement* st, char
             case '<' :
             case '!' :
             case '?' :
-                *cursor = *cursor - (length) + i;
+                *cursor = start + i;
                 sprintf(msg, "You forgot to specify a type");
                 print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
@@ -395,6 +310,7 @@ static void validate_entity(char code[], int* cursor, struct Statement* st, char
             case '|' :
             case '~' :
             case '`' :
+                *cursor = start + i;
                 sprintf(msg, "Invalid character '%c'", value[i]);
                 print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
@@ -403,6 +319,7 @@ static void validate_entity(char code[], int* cursor, struct Statement* st, char
     int x = strlen(value);
     
     if (x == 0) {
+        *cursor = start;
         sprintf(msg, "Entity must be at least one character long");
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
@@ -419,12 +336,13 @@ static void validate_entity(char code[], int* cursor, struct Statement* st, char
         reserved_error = 1;
         
     if (reserved_error == 1) {
+        *cursor = start;
         sprintf(msg, MSG_RESERVED_KEYWORD);
         print_error(code, cursor, msg, EXIT_RESERVED_KEYWORD);
     }
 }
 
-static void validate_entity_type(char code[], int* cursor, struct Statement* st, char value[], int length) {
+static void validate_entity_type(int start, char code[], int* cursor, struct Statement* st, char value[], int length) {
     int ok = 0;
     char msg[100];
     
@@ -438,6 +356,8 @@ static void validate_entity_type(char code[], int* cursor, struct Statement* st,
         ok = 1;
     
     if (ok == 0) {
+        *cursor = start;
+        
         if (strlen(value) >= 50) {
             sprintf(msg, "Invalid type");
         } else {
@@ -448,7 +368,7 @@ static void validate_entity_type(char code[], int* cursor, struct Statement* st,
     }
 }
 
-static void validate_operator(char code[], int* cursor, struct Statement* st, char value[], int length) {
+static void validate_operator(int start, char code[], int* cursor, struct Statement* st, char value[], int length) {
     int ok = 0;
     char msg[100];
     
@@ -457,16 +377,19 @@ static void validate_operator(char code[], int* cursor, struct Statement* st, ch
         
         // We are making an assumptions here 
         if (code[*cursor+1] == '=') {
+            *cursor = start;
             sprintf(msg, "Use '=' instead of '=='");
             print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
         
         if (code[*cursor+1] == '>') {
+            *cursor = start;
             sprintf(msg, "Use '>=' instead of '=>'");
             print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
         
         if (code[*cursor+1] == '<') {
+            *cursor = start;
             sprintf(msg, "Use '<=' instead of '=<'");
             print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
@@ -488,6 +411,8 @@ static void validate_operator(char code[], int* cursor, struct Statement* st, ch
         ok = 1;
     
     if (ok == 0) {
+        *cursor = start;
+        
         if (strlen(value) >= 50) {
             sprintf(msg, "Not a valid operator");
         } else {
@@ -498,26 +423,28 @@ static void validate_operator(char code[], int* cursor, struct Statement* st, ch
     }
 }
 
-static void validate_filter(char code[], int* cursor, struct Statement* st, char* type, char value[], int length) {
+static void validate_filter(int start, char code[], int* cursor, struct Statement* st, char* type, char value[], int length) {
     char msg[100];
 
     // Since we can have filters of different types, we need to figure out what 
     // type of filter this is; String, Double, Int, List
     
     if (value[0] == '(') {
-        validate_list(code, cursor, st, type, value, length);
+        validate_list(start, code, cursor, st, type, value, length);
         st->filter_type = "List";
     } else {
         if (strcmp(type, "String") == 0) {
-            validate_string(code, cursor, st, value, length);
+            validate_string(start, code, cursor, st, value, length);
             st->filter_type = "Scalar";
         } else if (strcmp(type, "Int") == 0) {
-            validate_int(code, cursor, st, value, length);
+            validate_int(start, code, cursor, st, value, length);
             st->filter_type = "Scalar";
         } else if (strcmp(type, "Double") == 0) {
-            validate_double(code, cursor, st, value, length);
+            validate_double(start, code, cursor, st, value, length);
             st->filter_type = "Scalar";
         } else {
+            *cursor = start;
+            
             if (strlen(value) >= 50) {
                 sprintf(msg, "Unknown type\n");
             } else {
@@ -529,22 +456,22 @@ static void validate_filter(char code[], int* cursor, struct Statement* st, char
     }
 }
 
-static void validate_logic_op(char code[], int* cursor, struct Statement* st, char value[], int length) {
+static void validate_logic_op(int start, char code[], int* cursor, struct Statement* st, char value[], int length) {
     char msg[100];
     
     if (value[0] != '&' && value[0] != '|') {
-        (*cursor)--;
+        *cursor = start;
         sprintf(msg, "Expecting '&' or '|' but got '%c' instead", value[0]);
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
 }
 
-static void validate_string(char code[], int* cursor, struct Statement* st, char value[], int length) {
+static void validate_string(int start, char code[], int* cursor, struct Statement* st, char value[], int length) {
     int i = 0;
     char msg[100];
     
     if (value[0] != '\'' && value[0] != '"') {
-        *cursor -= length;
+        *cursor = start;
         sprintf(msg, "String must start with a ''' or a '\"' but got '%c' instead", value[0]);
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
@@ -555,7 +482,6 @@ static void validate_string(char code[], int* cursor, struct Statement* st, char
     } else {
         if (value[length-2] == '\\') {
             // Ending quote was escaped
-            *cursor -= length;
             sprintf(msg, "String was not closed", value[length-1]);
             print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
@@ -567,6 +493,7 @@ static void validate_string(char code[], int* cursor, struct Statement* st, char
     for (i=1; i<length-1; i++) {
         if (value[0] == value[i]) {
             if (value[i-1] != '\\') {
+                *cursor = start + i;
                 sprintf(msg, "Quote must be escaped within string", value[length]);
                 print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
             }
@@ -574,7 +501,7 @@ static void validate_string(char code[], int* cursor, struct Statement* st, char
     }
 }
 
-static void validate_list(char code[], int* cursor, struct Statement* st, char* type, char value[], int length) {
+static void validate_list(int start, char code[], int* cursor, struct Statement* st, char* type, char value[], int length) {
     int i = 0;
     int ok = 0;
     char msg[100];
@@ -582,7 +509,7 @@ static void validate_list(char code[], int* cursor, struct Statement* st, char* 
     char buffer[100];
     
     if (value[0] != '(') {
-        *cursor-= length;
+        *cursor = start;
         sprintf(msg, "Syntax error.  List must start with a '('.  Got '%c' instead", value[0]);
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
@@ -593,17 +520,17 @@ static void validate_list(char code[], int* cursor, struct Statement* st, char* 
     }
     
     if (strcmp(type, "Int") == 0) {
-        validate_list_int(code, cursor, st, value, length);
+        validate_list_int(start, code, cursor, st, value, length);
     } else if(strcmp(type, "Double") == 0) {
-        validate_list_double(code, cursor, st, value, length);
+        validate_list_double(start, code, cursor, st, value, length);
     } else if(strcmp(type, "String") == 0) {
-        validate_list_string(code, cursor, st, value, length);
+        validate_list_string(start, code, cursor, st, value, length);
     } else {
         exception("Unknown list type: %s", type, EXIT_INVALID_SYNTAX);
     }
 }
 
-static void validate_list_string(char code[], int* cursor, struct Statement* st, char value[], int length) {
+static void validate_list_string(int start, char code[], int* cursor, struct Statement* st, char value[], int length) {
     int i = 1;
     int x = 0;
     char newstr[100] = {};
@@ -621,13 +548,13 @@ static void validate_list_string(char code[], int* cursor, struct Statement* st,
     
     while (token != NULL) {
         int l = strlen(token);
-        validate_string(code, cursor, st, token, l);
+        validate_string(start, code, cursor, st, token, l);
         token = strtok (NULL, ",");
     }
 }
 
 
-static void validate_list_int(char code[], int* cursor, struct Statement* st, char value[], int length) {
+static void validate_list_int(int start, char code[], int* cursor, struct Statement* st, char value[], int length) {
     int i = 1;
     int x = 0;
     char newstr[100] = {};
@@ -645,12 +572,12 @@ static void validate_list_int(char code[], int* cursor, struct Statement* st, ch
     
     while (token != NULL) {
         int l = strlen(token);
-        validate_int(code, cursor, st, token, l);
+        validate_int(start, code, cursor, st, token, l);
         token = strtok (NULL, ",");
     }
 }
 
-static void validate_list_double(char code[], int* cursor, struct Statement* st, char value[], int length) {
+static void validate_list_double(int start, char code[], int* cursor, struct Statement* st, char value[], int length) {
     int i = 1;
     int x = 0;
     char newstr[100] = {};
@@ -668,12 +595,12 @@ static void validate_list_double(char code[], int* cursor, struct Statement* st,
     
     while (token != NULL) {
         int l = strlen(token);
-        validate_double(code, cursor, st, token, l);
+        validate_double(start, code, cursor, st, token, l);
         token = strtok (NULL, ",");
     }
 }
 
-static void validate_int(char code[], int* cursor, struct Statement* st, char value[], int length) {
+static void validate_int(int start, char code[], int* cursor, struct Statement* st, char value[], int length) {
     char msg[100];
     int i = 0;
     
@@ -694,6 +621,8 @@ static void validate_int(char code[], int* cursor, struct Statement* st, char va
                 if (i == 0)
                     break;
             default:
+                *cursor = start + i;
+                
                 if (strlen(value) >= 50) {
                     sprintf(msg, "Not a integer");
                 } else {
@@ -706,7 +635,7 @@ static void validate_int(char code[], int* cursor, struct Statement* st, char va
 }
 
 
-static void validate_double(char code[], int* cursor, struct Statement* st, char value[], int length) {
+static void validate_double(int start, char code[], int* cursor, struct Statement* st, char value[], int length) {
     char msg[100];
     int i = 0;
     int dec = 0;
@@ -731,6 +660,8 @@ static void validate_double(char code[], int* cursor, struct Statement* st, char
                 if (i == 0)
                     break;
             default:
+                *cursor = start + i;
+                
                 if (strlen(value) >= 50) {
                     sprintf(msg, "Not a decimal");
                 } else {
@@ -742,6 +673,8 @@ static void validate_double(char code[], int* cursor, struct Statement* st, char
     }
     
     if (dec > 1) {
+        *cursor = start;
+        
         if (strlen(value) >= 50) {
             sprintf(msg, "Too many decimals");
         } else {
@@ -755,18 +688,27 @@ static void validate_double(char code[], int* cursor, struct Statement* st, char
 static void print_error(char code[], int* cursor, char msg[], int exit_code) {
     int i = 0;
     
-    // Error message
-    printf("ERROR: %s at character %i\n", msg, *cursor+1);
+    // We only want to show the section of code that failed
+    // (50 characters or less)
+    int start;
     
-    // Code sent to this parser
-    printf("%s\n", code);
+    if ((*cursor)-49 <= 0) {
+        start = 0;
+    } else {
+        start = (*cursor) - 49;
+    }
+    
+    char* short_code = (char*)malloc(50);
+    int length = substr(code, start, start+49, short_code, 50);
+    
+    // Error message
+    printf("ERROR: %s at character %i\n%s\n", msg, start+49, short_code);
     
     // Point out where error occured
-    for (; i<*cursor; i++)
+    for (; i<(*cursor)-start; i++)
         putc('-', stdout);
-    
-    putc('^', stdout);
-    putc('\n', stdout);
+        
+    printf("^\n");
     
     exit(exit_code);
 }
@@ -844,11 +786,11 @@ int main(int argc, const char* argv[]) {
     int sts_index = 0;
     int cursor = 0;
     char code[CODE_BUFFER_LENGTH] = {};
-    struct Statement* sts[STATEMENTS_ARRAY_LENGTH];
-    char export_type[10];
+    char export_type[10] = "JSON";
     int code_switch = 0;
     int file_switch = 0;
     int export_switch = 0;
+    struct Statement* sts[STATEMENTS_ARRAY_LENGTH];
     
     for (i=1; i<argc; i++) { 
         if (strcmp(argv[i], "--code") == 0) {
