@@ -86,9 +86,7 @@ Parser Options:
 
 To do / issues:
 
-    - Error pointer not always pointing to correct location.
     - Trailing white spaces after a string throws a syntax error.
-    - Do not show entire line of code during error.  Hard to understand when longer than a single line.
     
 Note: THIS SOFTWARE IS IN ALPHA AND SHOULD NOT BE USED IN PRODUCTION.  I HAVE ONLY COMPILED USING GCC
       ON CENTOS 6.6.
