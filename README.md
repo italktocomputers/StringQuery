@@ -1,7 +1,11 @@
-StringQuery v 0.1 (Alpha - DO NOT USE FOR PRODUCTION)
- 
+StringQuery v 0.1
+
 A little query language that can be embedded in a URL.  Can be used for other
 purposes as well.  Includes syntax and validity checking.
+
+WARNING: THIS SOFTWARE IS IN ALPHA AND SHOULD NOT BE USED IN PRODUCTION.  I HAVE 
+ONLY COMPILED USING GCC ON CENTOS 6.6.  AS OF RIGHT NOW, ASCII IS THE ONLY
+SUPPORTED CHARACTER ENCODING ALTHOUGH I WILL BE LOOKING INTO SUPPORTING UTF-8.
 
 NOTE: If using StringQuery in a URL, code will need to be encoded using the
 application/x-www-form-urlencoded format.  More information on this encoding: 
@@ -87,6 +91,3 @@ Parser Options:
 To do / issues:
 
     - Trailing white spaces after a string throws a syntax error.
-    
-Note: THIS SOFTWARE IS IN ALPHA AND SHOULD NOT BE USED IN PRODUCTION.  I HAVE ONLY COMPILED USING GCC
-      ON CENTOS 6.6.
