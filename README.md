@@ -90,4 +90,4 @@ Parser Options:
 
 To do / issues:
 
-    - Trailing white spaces after a string throws a syntax error.
+    - Error indicator is off many times.
