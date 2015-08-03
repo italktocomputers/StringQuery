@@ -402,32 +402,44 @@ static void validate_logic_op(char code[], int cursor, char value[], int length)
 static void validate_string(char code[], int cursor, char value[], int length) {
     int i = 0;
     char msg[100];
+    char pos = 1;
     
     if (value[0] != '\'' && value[0] != '"') {
-        sprintf(msg, "String must start with a ''' or a '\"' but got '%c' instead", value[0]);
+        sprintf(msg, "String must start with a quote but got '%c' instead", value[0]);
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
     
-    if (value[0] != value[length-1]) {
-        sprintf(msg, "String must have matching ending quote but got '%c' instead", value[length]);
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
-    } else {
-        if (value[length-2] == '\\') {
-            // Ending quote was escaped
-            sprintf(msg, "String was not closed", value[length-1]);
-            print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+    // I need to find end quote.  I can't just go to end of value and look there
+    // since someone could end a string and then add a bunch of spaces.
+    for (i=1; i<length; i++) {
+        if (value[i] == value[0]) {
+            if (value[i-1] != '\\') {
+                // This is the end quote.  It is the same quote as the starting
+                // quote and is not escaped.
+                pos = i;
+                break;
+            }
         }
     }
     
-    // We need to make sure they are not using their starting/ending quote
-    // within their string without escaping it.
-    // i=1 to skip start quote
-    for (i=1; i<length-1; i++) {
-        if (value[0] == value[i]) {
-            if (value[i-1] != '\\') {
-                sprintf(msg, "Quote must be escaped within string", value[length]);
-                print_error(code, cursor+i, msg, EXIT_INVALID_CHARACTER);
-            }
+    if (value[pos] != value[0]) {
+        sprintf(msg, "String must have matching ending quote but got '%c' instead", value[length]);
+        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+    }
+    
+    // Now that I know where the string ends, I need to make sure they did not
+    // enter anymore characters other than space and line breaks.
+    
+    for (i=pos+1; i<length; i++) {
+        switch (value[i]) {
+            case ' ' :
+            case '\n' :
+            case '\0' :
+                break;
+            
+            default:
+                sprintf(msg, "Syntax error", value[length]);
+                print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
     }
 }
