@@ -6,10 +6,15 @@ purposes as well.  Includes syntax and validity checking.
 WARNING: THIS SOFTWARE IS IN ALPHA AND SHOULD NOT BE USED IN PRODUCTION.  I HAVE 
 ONLY COMPILED USING GCC ON CENTOS 6.6.  AS OF RIGHT NOW, ASCII IS THE ONLY
 SUPPORTED CHARACTER ENCODING ALTHOUGH I WILL BE LOOKING INTO SUPPORTING UTF-8.
+IF YOU ARE ACCEPTING CODE FROM A URL IT SHOULD BE ENCODED USING THE
+APPLICATION/X-WWW-FORM-URLENCODED FORMAT.  NOT DOING SO CAN LEAD TO COMMAND 
+INJECTION.
 
 NOTE: If using StringQuery in a URL, code will need to be encoded using the
 application/x-www-form-urlencoded format.  More information on this encoding: 
 http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
+
+To compile on Centos 6.6 using GCC 4.4.7: gcc parser.c -lm
  
 The MIT License (MIT)
 
@@ -55,7 +60,6 @@ The following operators are supported:
     <
     >=
     <=
-    ?
      
 Filters can be any of the supported types or a collection of types known as 
 a List.  Example comparing Entity against a single value:
@@ -84,10 +88,11 @@ Valid List syntax:
 
 Parser Options:
 
-    --file      <file>        Parse code from <file>.   
-    --code      <code>        Parse code   
-    --export    <JSON|SQL>    Export to what format         Defaults to JSON       
+    --file          <file>                      Parse code from <file>   
+    --code          <code>                      Parse code   
+    --code-format   <urlencoded|nothing>        What format is the code in    Defaults to nothing
+    --export        <JSON|SQL>                  Export to what format         Defaults to JSON     
 
 To do / issues:
 
-    - Error indicator is off many times.
+    - Error indicator is off.
