@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h> 
 #include "parser.h"
 #include "translators/JSON.c"
 #include "translators/SQL.c"
@@ -9,29 +10,24 @@
 #define CODE_BUFFER_LENGTH 50000
 
 #define MSG_NO_CODE_TO_PROCESS "No code to process"
-#define EXIT_NO_CODE_TO_PROCESS 2
-
 #define MSG_TOO_MUCH_CODE_TO_PROCESS "Too much code to process"
-#define EXIT_TOO_MUCH_CODE_TO_PROCESS 3
 
 #define MSG_UNRECOGNIZED_TOKEN "Unrecognized token"
-#define EXIT_UNRECOGNIZED_TOKEN 4
+#define EXIT_UNRECOGNIZED_TOKEN 2
 
 #define MSG_INVALID_CHARACTER "Invalid Character"
-#define EXIT_INVALID_CHARACTER 5
+#define EXIT_INVALID_CHARACTER 3
 
 #define MSG_INVALID_SYNTAX "Syntax Error"
-#define EXIT_INVALID_SYNTAX 6
+#define EXIT_INVALID_SYNTAX 4
 
 #define MSG_RESERVED_KEYWORD "Reserved keyword"
-#define EXIT_RESERVED_KEYWORD 7
+#define EXIT_RESERVED_KEYWORD 5
 
 #define MSG_NO_EXPORT_TYPE "You have not specified a export type"
 #define MSG_NO_EXPORT_SUPPORT "Supported export formats: JSON, SQL"
-#define EXIT_NO_EXPORT_TYPE 8
-
 #define MSG_NO_CODE_SWITCH "Must specify --code or --file"
-#define EXIT_NO_CODE_SWITCH 9
+#define MSG_NO_CODE_FORMAT "You have not specified a code format"
 
 #define TOKEN_ENTITY "TOKEN_ENTITY"
 #define TOKEN_ENTITY_TYPE "TOKEN_ENTITY_TYPE"
@@ -39,7 +35,8 @@
 #define TOKEN_FILTER "TOKEN_FILTER"
 #define TOKEN_ENTITY_OR_END "TOKEN_ENTITY_OR_END"
 
-#define EXPORT_LENGTH 10
+#define EXPORT_ARG_LENGTH 10
+#define CODE_FORMAT_ARG_LENGTH 50
 
 static int parse(char[], int*, struct Statement*[], int*);
 static int get_statement(char[], int*, struct Statement*[], int*);
@@ -47,6 +44,9 @@ static int is_end(char[], int*);
 static int substr(char*, int, int, char*, int);
 static int clean(char[], int, char*);
 
+int hex_to_dec(char[], int);
+
+static void urldecode(char[], char*);
 static void print_error(char[], int, char[], int);
 static void exception(char[], char[], int);
 
@@ -737,6 +737,104 @@ static int parse(char code[], int* cursor, struct Statement* sts[], int* sts_ind
     while (get_statement(code, cursor, sts, sts_index) != 0);
 }
 
+void urldecode(char encoded[], char* decoded) {
+    int i = 0;
+    int x = 0;
+    
+    while (encoded[i] != '\0') {
+        // RFC1738: Space characters are replaced by '+'.
+        if (encoded[i] == '+') {
+            decoded[x] = ' ';
+            i++;
+        } else if (encoded[i] == '%') {
+            // RFC1738: Non-alphanumeric characters are replaced by `%HH', a 
+            // percent sign and two hexadecimal digits representing the ASCII 
+            // code of the character.
+            char hex[2] = {};
+            hex[0] = encoded[i+1]; // The first hexadecimal digit
+            hex[1] = encoded[i+2]; // The second hexadecimal digit
+            
+            char c = hex_to_dec(hex, 2);
+            
+            decoded[x] = c;
+            
+            // Move 3 spaces since we just used %HH for our character.
+            i += 3;
+        } else {
+            decoded[x] = encoded[i];
+            i++;
+        }
+        
+        x++;
+    }
+}
+
+int hex_to_dec(char hex[], int length) {
+    int i = 0;
+    int dec;
+    int sum = 0;
+    
+    while (i <= length-1) {
+        // Move from right to left
+        switch (hex[length-1-i]) {
+            case '0' :
+                dec = 0;
+                break;
+            case '1' :
+                dec = 1;
+                break;
+            case '2' :
+                dec = 2;
+                break;
+            case '3' :
+                dec = 3;
+                break;
+            case '4' :
+                dec = 4;
+                break;
+            case '5' :
+                dec = 5;
+                break;
+            case '6' :
+                dec = 6;
+                break;
+            case '7' :
+                dec = 7;
+                break;
+            case '8' :
+                dec = 8;
+                break;
+            case '9' :
+                dec = 9;
+                break;
+            case 'A' :
+                dec = 10;
+                break;
+            case 'B' :
+                dec = 11;
+                break;
+            case 'C' :
+                dec = 12;
+                break;
+            case 'D' :
+                dec = 13;
+                break;
+            case 'E' :
+                dec = 14;
+                break;
+            case 'F' :
+                dec = 15;
+                break;
+        }
+        
+        sum += (dec * (pow(16, i)));
+        
+        i++;
+    }
+    
+    return sum;
+}
+
 int main(int argc, const char* argv[]) {
     int i = 0;
     int sts_index = 0;
@@ -746,6 +844,9 @@ int main(int argc, const char* argv[]) {
     int code_switch = 0;
     int file_switch = 0;
     int export_switch = 0;
+    int code_format_switch = 0;
+    char code_format[50];
+    
     struct Statement* sts[STATEMENTS_ARRAY_LENGTH];
     
     for (i=1; i<argc; i++) { 
@@ -754,24 +855,23 @@ int main(int argc, const char* argv[]) {
             
             if (argv[i+1] == NULL) {
                 printf("ERROR: %s\n", MSG_NO_CODE_TO_PROCESS);
-                exit(EXIT_NO_CODE_TO_PROCESS);
+                exit(DEFAULT_EXIT);
             }
             
             int x = strlen(argv[i+1]);
             
             if (x >= CODE_BUFFER_LENGTH) {
                 printf("ERROR: %s\n", MSG_TOO_MUCH_CODE_TO_PROCESS);
-                exit(EXIT_TOO_MUCH_CODE_TO_PROCESS);
+                exit(DEFAULT_EXIT);
             }
             
             strncpy(code, argv[i+1], CODE_BUFFER_LENGTH);
-            parse(code, &cursor, sts, &sts_index);
         } else if (strcmp(argv[i], "--file") == 0) {
             file_switch = 1;
             
             if (argv[i+1] == NULL) {
                 printf("ERROR: %s\n", MSG_NO_CODE_TO_PROCESS);
-                exit(EXIT_NO_CODE_TO_PROCESS);
+                exit(DEFAULT_EXIT);
             } else {
                 FILE *fp;
                 char c;
@@ -782,30 +882,47 @@ int main(int argc, const char* argv[]) {
                 while ((c = fgetc(fp)) != EOF) {
                     if (x >= CODE_BUFFER_LENGTH) {
                         printf("ERROR: %s\n", MSG_TOO_MUCH_CODE_TO_PROCESS);
-                        exit(EXIT_TOO_MUCH_CODE_TO_PROCESS);
+                        exit(DEFAULT_EXIT);
                     }
                      
                     code[x++] = c;
                 }
-                
-                parse(code, &cursor, sts, &sts_index);
             }
         } else if (strcmp(argv[i], "--export") == 0) {
             export_switch = 1;
             
             if (argv[i+1] == NULL) {
                 printf("ERROR: %s\n", MSG_NO_EXPORT_TYPE);
-                exit(EXIT_NO_EXPORT_TYPE);
+                exit(DEFAULT_EXIT);
             }
             
-            strncpy(export_type, argv[i+1], EXPORT_LENGTH);
+            strncpy(export_type, argv[i+1], EXPORT_ARG_LENGTH);
+        } else if (strcmp(argv[i], "--code-format") == 0) {
+            code_format_switch = 1;
+            
+            if (argv[i+1] == NULL) {
+                printf("ERROR: %s\n", MSG_NO_CODE_FORMAT);
+                exit(DEFAULT_EXIT);
+            }
+            
+            strncpy(code_format, argv[i+1], CODE_FORMAT_ARG_LENGTH);
         }
     }
     
     if (code_switch == 0 && file_switch == 0) {
         printf("ERROR: %s\n", MSG_NO_CODE_SWITCH);
-        exit(EXIT_NO_CODE_SWITCH);
+        exit(DEFAULT_EXIT);
     }
+    
+    char decoded_code[CODE_BUFFER_LENGTH] = {};
+    
+    if (code_format_switch == 1 && strcmp(code_format, "urlencoded") == 0) {
+        urldecode(code, decoded_code); 
+    } else {
+        strncpy(decoded_code, code, CODE_BUFFER_LENGTH);
+    }
+    
+    parse(decoded_code, &cursor, sts, &sts_index);
     
     if (strcmp(export_type, "JSON") == 0) {
         toJSON(sts, sts_index);
@@ -813,7 +930,7 @@ int main(int argc, const char* argv[]) {
         toSQL(sts, sts_index);
     } else {
         printf("ERROR: %s\n", MSG_NO_EXPORT_SUPPORT);
-        exit(EXIT_NO_EXPORT_TYPE);
+        exit(DEFAULT_EXIT);
     }
     
     return 0;
