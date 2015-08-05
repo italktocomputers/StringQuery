@@ -8,10 +8,9 @@ ONLY COMPILED USING GCC ON CENTOS 6.6.  AS OF RIGHT NOW, ASCII IS THE ONLY
 SUPPORTED CHARACTER ENCODING ALTHOUGH I WILL BE LOOKING INTO SUPPORTING UTF-8.
 IF YOU ARE ACCEPTING CODE FROM A URL IT SHOULD BE ENCODED USING THE
 APPLICATION/X-WWW-FORM-URLENCODED FORMAT.  NOT DOING SO CAN LEAD TO COMMAND 
-INJECTION.
+INJECTION.  
 
-NOTE: If using StringQuery in a URL, code will need to be encoded using the
-application/x-www-form-urlencoded format.  More information on this encoding: 
+More information on this encoding: 
 http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
 
 To compile on Centos 6.6 using GCC 4.4.7: gcc parser.c -lm
@@ -94,5 +93,3 @@ Parser Options:
     --export        <JSON|SQL>                  Export to what format         Defaults to JSON     
 
 To do / issues:
-
-    - Error indicator is off.
