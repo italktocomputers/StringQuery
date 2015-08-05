@@ -1,7 +1,9 @@
 StringQuery v 0.1
 
+
 A little query language that can be embedded in a URL.  Can be used for other
 purposes as well.  Includes syntax and validity checking.
+
 
 WARNING: THIS SOFTWARE IS IN ALPHA AND SHOULD NOT BE USED IN PRODUCTION.  I HAVE 
 ONLY COMPILED USING GCC ON CENTOS 6.6.  AS OF RIGHT NOW, ASCII IS THE ONLY
@@ -13,29 +15,11 @@ INJECTION.
 More information on this encoding: 
 http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
 
-To compile on Centos 6.6 using GCC 4.4.7: gcc parser.c -lm
- 
-The MIT License (MIT)
 
-Copyright (c) 2015 Andrew Schools
+To compile on Centos 6.6 using GCC 4.4.7: 
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+    gcc parser.c -lm
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
  
 Valid statement syntax: 
 
