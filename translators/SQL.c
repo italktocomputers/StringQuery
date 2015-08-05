@@ -89,5 +89,5 @@ void toSQL(struct Statement* sts[], int sts_index) {
         }
     }
     
-    printf("SQL: %s\n", sql);
+    printf("%s\n", sql);
 }
