@@ -79,6 +79,15 @@ static void get_entity(char code[], int* cursor, struct Statement* st) {
         if (code[tmp_cursor] == ':') {
             tmp_cursor--;
             break;
+        } else if (code[tmp_cursor] == '=') {
+            // They forgot to add a type. Even though this is not a valid 
+            // delimiter it will be used as one and I will let the 
+            // validate_entity function determine the validity of the entity 
+            // provided.
+            // Note that I am not doing a tmp_cursor--.  I want to include
+            // the '=' in the entity name so that this code will fail like
+            // it should.
+            break;
         }
         
         tmp_cursor++;
@@ -110,6 +119,12 @@ static void get_entity_type(char code[], int* cursor, struct Statement* st) {
             case '<' :
             case '!' :
             case '=' :
+                ok = 1;
+                tmp_cursor--;
+                break;
+            case '\'' :
+            case '"' :
+                // They did not specify an operator...
                 ok = 1;
                 tmp_cursor--;
                 break;
@@ -266,6 +281,7 @@ static void validate_entity(char code[], int cursor, char value[], int length) {
                 // I'm assuming that they are specifying an operator and not 
                 // using one of these characters in their Entity name.
                 error = 1;
+                break;
             case '&' :
             case '*' :
             case '(' :
@@ -281,13 +297,17 @@ static void validate_entity(char code[], int cursor, char value[], int length) {
                 // They cannot use any of these characters in their Entity 
                 // name.
                 error = 2;
+                break;
         }
     }
     
     int x = strlen(value);
     
-    if (x == 0)
+    if (code[cursor] == '\0') 
         error = 3;
+    
+    if (x == 0)
+        error = 4;
     
     if (error == 1) {
         sprintf(msg, "You forgot to specify a type");
@@ -296,6 +316,9 @@ static void validate_entity(char code[], int cursor, char value[], int length) {
         sprintf(msg, "Invalid character '%c' for Entity", value[i]);
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     } else if (error == 3) {
+        sprintf(msg, "Unexpected END OF LINE");
+        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+    } else if (error == 4) {
         sprintf(msg, "Entity must be at least one character long");
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
@@ -322,6 +345,11 @@ static void validate_entity_type(char code[], int cursor, char value[], int leng
         
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
+    
+    if (code[cursor] == '\0') {
+        sprintf(msg, "Unexpected END OF LINE");
+        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+    }    
 }
 
 static void validate_operator(char code[], int cursor, char value[], int length) {
@@ -371,6 +399,11 @@ static void validate_operator(char code[], int cursor, char value[], int length)
         
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
+    
+    if (code[cursor] == '\0') {
+        sprintf(msg, "Unexpected END OF LINE");
+        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+    }
 }
 
 static void validate_filter(char code[], int cursor, char* type, char value[], int length) {
@@ -406,7 +439,7 @@ static void validate_string(char code[], int cursor, char value[], int length) {
     
     if (value[0] != '\'' && value[0] != '"') {
         sprintf(msg, "String must start with a quote but got '%c' instead", value[0]);
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor-length, msg, EXIT_INVALID_CHARACTER);
     }
     
     // I need to find end quote.  I can't just go to end of value and look there
@@ -543,6 +576,11 @@ static void validate_int(char code[], int cursor, char value[], int length) {
     int error = 0;
     char msg[100];
     
+    if (length == 0) {
+        sprintf(msg, "Not a integer");
+        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+    }
+    
     for (; i<length; i++) {
         switch (value[i]) {
             case '0' :
@@ -585,6 +623,11 @@ static void validate_double(char code[], int cursor, char value[], int length) {
     int dec = 0;
     int error = 0;
     char msg[100];
+    
+    if (length == 0) {
+        sprintf(msg, "Not a double");
+        print_error(code, cursor+i, msg, EXIT_INVALID_CHARACTER);
+    }
     
     for (i=0; i<length; i++) { 
         switch (value[i]) {
@@ -652,7 +695,7 @@ static void print_error(char code[], int cursor, char msg[], int exit_code) {
     int length = substr(code, start, start+49, short_code, 50);
     
     // Error message
-    printf("ERROR: %s at character %i\n%s\n", msg, start+49, short_code);
+    printf("ERROR: %s at character %i\n%s\n", msg, cursor+1, short_code);
     
     // Point out where error occured
     for (; i<cursor-start; i++)
