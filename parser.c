@@ -304,22 +304,22 @@ static void validate_resource(char code[], int cursor, char value[], int length,
     int x = strlen(value);
     
     if (error == 1) {
-        sprintf(msg, "You forgot to specify a type");
+        sprintf(msg, "Syntax error.  No type");
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     } else if (error == 2) {
-        sprintf(msg, "Invalid character '%c' for Resource", value[i]);
+        sprintf(msg, "Syntax error.  Invalid character '%c'", value[i]);
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     } else if (code[cursor] == '\0') {
-        sprintf(msg, "Unexpected END OF LINE");
+        sprintf(msg, "Syntax error.  Unexpected END OF LINE");
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     } else if (x == 0) {
-        sprintf(msg, "Resource must be at least one character long");
+        sprintf(msg, "Syntax error.  No Resource");
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     } else if (period > 1) {
-        sprintf(msg, "Too many '.'");
+        sprintf(msg, "Syntax error.  Unexpected '.'");
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     } else if (period == 0) {
-        sprintf(msg, "Must provide a valid Resource.  Need a '.'");
+        sprintf(msg, "Syntax error.  Expecting '.'");
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
 }
@@ -340,16 +340,16 @@ static void validate_resource_type(char code[], int cursor, char value[], int le
     
     if (ok == 0) {
         if (strlen(value) >= 50) {
-            sprintf(msg, "Invalid type");
+            sprintf(msg, "Syntax error.  Invalid type");
         } else {
-            sprintf(msg, "Invalid type '%s'", value);
+            sprintf(msg, "Syntax error.  Invalid type '%s'", value);
         }
         
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
     
     if (code[cursor] == '\0') {
-        sprintf(msg, "Unexpected END OF LINE");
+        sprintf(msg, "Syntax error.  Unexpected END OF LINE");
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }    
 }
@@ -363,17 +363,17 @@ static void validate_operator(char code[], int cursor, char value[], int length,
         // '==', '=>' or '=<', they really mean...
         
         if (code[cursor+1] == '=') {
-            sprintf(msg, "Use '=' instead of '=='");
+            sprintf(msg, "Syntax error.  Use '=' instead of '=='");
             print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
         
         if (code[cursor+1] == '>') {
-            sprintf(msg, "Use '>=' instead of '=>'");
+            sprintf(msg, "Syntax error.  Use '>=' instead of '=>'");
             print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
         
         if (code[cursor+1] == '<') {
-            sprintf(msg, "Use '<=' instead of '=<'");
+            sprintf(msg, "Syntax error.  Use '<=' instead of '=<'");
             print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
         
@@ -394,16 +394,16 @@ static void validate_operator(char code[], int cursor, char value[], int length,
     
     if (ok == 0) {
         if (strlen(value) >= 50) {
-            sprintf(msg, "Not a valid operator");
+            sprintf(msg, "Syntax error.  Not a valid operator");
         } else {
-            sprintf(msg, "Not a valid operator: '%s'", value);
+            sprintf(msg, "Syntax error.  Not a valid operator: '%s'", value);
         }
         
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
     
     if (code[cursor] == '\0') {
-        sprintf(msg, "Unexpected END OF LINE");
+        sprintf(msg, "Syntax error.  Unexpected END OF LINE");
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
 }
@@ -429,7 +429,7 @@ static void validate_conjunctive(char code[], int cursor, char value[], int leng
     char msg[100];
     
     if (value[0] != '&' && value[0] != '|') {
-        sprintf(msg, "Expecting '&' or '|' but got '%c' instead", value[0]);
+        sprintf(msg, "Syntax error.  Expecting '&' or '|' but got '%c' instead", value[0]);
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
 }
@@ -473,14 +473,12 @@ static void validate_var(char code[], int cursor, char value[], int length, cons
     
     
     if (error == 1) {
-        sprintf(msg, "Invalid character '%c' for Resource", value[i]);
+        sprintf(msg, "Syntax error.  Invalid character '%c' for Var", value[i]);
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     } else if (period > 1) {
         sprintf(msg, "Syntax error.  Too many periods");
         print_error(code, cursor-length, msg, EXIT_INVALID_CHARACTER);
     }
-    
-    // Compare resource Name
 }
 
 static void validate_string(char code[], int cursor, char value[], int length, const struct Statement* st) {
@@ -489,7 +487,7 @@ static void validate_string(char code[], int cursor, char value[], int length, c
     char pos = 1;
     
     if (value[0] != '\'' && value[0] != '"') {
-        sprintf(msg, "String must start with a quote but got '%c' instead", value[0]);
+        sprintf(msg, "Syntax error.  String must start with a quote but got '%c' instead", value[0]);
         print_error(code, cursor-length, msg, EXIT_INVALID_CHARACTER);
     }
     
@@ -507,7 +505,7 @@ static void validate_string(char code[], int cursor, char value[], int length, c
     }
     
     if (value[pos] != value[0]) {
-        sprintf(msg, "String must have matching ending quote but got '%c' instead", value[length]);
+        sprintf(msg, "Syntax error.  String must have matching ending quote but got '%c' instead", value[length]);
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
     
@@ -522,7 +520,7 @@ static void validate_string(char code[], int cursor, char value[], int length, c
                 break;
             
             default:
-                sprintf(msg, "Syntax error", value[length]);
+                sprintf(msg, "Syntax error.  Unexpected character", value[length]);
                 print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
         }
     }
@@ -627,7 +625,7 @@ static void validate_int(char code[], int cursor, char value[], int length, cons
     char msg[100];
     
     if (length == 0) {
-        sprintf(msg, "Not a integer");
+        sprintf(msg, "Syntax error.  Not a integer");
         print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
     }
     
@@ -658,9 +656,9 @@ static void validate_int(char code[], int cursor, char value[], int length, cons
     
     if (error == 1) {
         if (strlen(value) >= 50) {
-            sprintf(msg, "Not a integer");
+            sprintf(msg, "Syntax error.  Not a integer");
         } else {
-            sprintf(msg, "Not a integer: '%s'", value);
+            sprintf(msg, "Syntax error.  Not a integer: '%s'", value);
         }
         
         print_error(code, cursor+i, msg, EXIT_INVALID_CHARACTER);
@@ -674,7 +672,7 @@ static void validate_double(char code[], int cursor, char value[], int length, c
     char msg[100];
     
     if (length == 0) {
-        sprintf(msg, "Not a double");
+        sprintf(msg, "Syntax error.  Not a double");
         print_error(code, cursor+i, msg, EXIT_INVALID_CHARACTER);
     }
     
@@ -710,17 +708,17 @@ static void validate_double(char code[], int cursor, char value[], int length, c
     
     if (error == 1) {
         if (strlen(value) >= 50) {
-            sprintf(msg, "Not a decimal");
+            sprintf(msg, "Syntax error.  Not a decimal");
         } else {
-            sprintf(msg, "Not a decimal: '%s'", value);
+            sprintf(msg, "Syntax error.  Not a decimal: '%s'", value);
         }
         
         print_error(code, cursor+i, msg, EXIT_INVALID_CHARACTER);
     } else if (error == 2) {
         if (strlen(value) >= 50) {
-            sprintf(msg, "Too many decimals");
+            sprintf(msg, "Syntax error.  Too many decimals");
         } else {
-            sprintf(msg, "Too many decimals '%s'", value);
+            sprintf(msg, "Syntax error.  Too many decimals '%s'", value);
         }
         
         print_error(code, cursor+i, msg, EXIT_INVALID_CHARACTER);
