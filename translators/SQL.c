@@ -66,13 +66,107 @@ static char* listToSQL(struct Statement* st, char* sql) {
     }
 }
 
+static void get_resource_name(char resource[RESOURCE_MAX], char* id) {
+    int i = 0;
+    int length = strlen(resource);
+    char buffer[RESOURCE_MAX] = {};
+    
+    for(; i<length; i++) {
+        if (resource[i] == '.')
+            break;
+            
+        buffer[i] = resource[i];
+    }
+    
+    buffer[i] = '\0';
+    strcpy(id, buffer);
+}
+
+static int in_array(char* arr[], char item[], int length) {
+    int i = 0;
+    
+    for (; i<length; i++) {
+        if (strcmp(arr[i], item) == 0) {
+            return 1;
+        }
+    }
+    
+    return 0;
+}
+
+static int unique(char* resources[], char* unique_resources[100], int length) {
+    int i = 0;
+    int x = 0;
+    
+    for (; i<length; i++) {
+        if (in_array(unique_resources, resources[i], x) == 0) {
+            // Add this item to our array
+            char* p = (char*)malloc(sizeof(100));
+            strcpy(p, resources[i]);
+            
+            unique_resources[x++] = p;
+        }  
+    }
+    
+    return x;
+}
+
 void toSQL(struct Statement* sts[], int sts_index) {
     int i = 0;
     char sql[MAX_SQL] = {};
     
-    for (; i<sts_index; i++) {
-        buffer_checks(sts[i]);
+    char* identifiers[100];
+    int identifiers_length;
+    
+    char* unique_identifiers[100] = {};
+    int unique_identifiers_length;
+    
+    //for (; i<sts_index; i++) {
+        //buffer_checks(sts[i]);
+    
+    strcat(sql, "SELECT\n");
+    
+    
+    // Fetch ALL resources and then compile a list of unique ones so we
+    // can build a SELECT and FROM list.
+    for (i=0; i<sts_index; i++) {
+        char identifier[RESOURCE_MAX] = {};
         
+        // If resource is User.FirstName then after we call the get_resource_name
+        // function, then identifier will be equal to 'User' 
+        get_resource_name(sts[i]->resource, identifier);
+        
+        char* p_resource = malloc(sizeof(RESOURCE_MAX));
+        
+        strcpy(p_resource, identifier);
+        
+        identifiers[i] = p_resource;
+    }
+    
+    identifiers_length = i;
+    
+    // We only need unique resource names to buold our SELECT and FROM list 
+    unique_identifiers_length = unique(identifiers, unique_identifiers, i);
+    
+    // Print SELECT list
+    for (i=0; i<unique_identifiers_length; i++) {
+        strcat(sql, " ");
+        strcat(sql, unique_identifiers[i]);
+        strcat(sql, ".*\n");
+    }
+    
+    strcat(sql, "FROM ");
+    
+    // Print FROM list
+    for (i=0; i<unique_identifiers_length; i++) {
+        if (i != 0)
+            strcat(sql, ", ");
+        strcat(sql, unique_identifiers[i]);
+    }
+    
+    strcat(sql, "\nWHERE ");
+    
+    for (i=0; i<sts_index; i++) {
         if (strcmp(sts[i]->filter_type, "Scalar") == 0) {
             sprintf(sql + strlen(sql), "%s %s %s", sts[i]->resource, sts[i]->operator, sts[i]->filter);
             
