@@ -23,17 +23,21 @@ To compile on Centos 6.6 using GCC 4.4.7:
  
 Valid statement syntax: 
 
-    Entity : Type Operator Filter 
+    Resource.Entity : Type Operator Filter 
   
-Entity specifies the resource to apply the filter against.  In a relational 
-database an Entity would reference a table.
+Resource.Entity specifies the Resource and Entity to apply the filter against.  
+In a relational database this would be a table and field name.
   
-Type specifies the data type of the resource.  The following data types are 
+Type specifies the data type of the Entity.  The following data types are 
 supported:
 
     String
     Int
     Double
+    @
+    
+The last type is a variable which tells the parser you are specifying a
+Resource.Entity.  This data type is used when performing a simple join.
      
 The following operators are supported:
 
@@ -47,9 +51,9 @@ The following operators are supported:
 Filters can be any of the supported types or a collection of types known as 
 a List.  Example comparing Entity against a single value:
 
-    FirstName:String='Andrew'
+    User.FirstName:String='Andrew'
      
-You can concatenate multiple statements by using one of the following logical
+You can concatenate multiple statements by using one of the following conjunctive
 operators:
 
     &
@@ -57,17 +61,36 @@ operators:
      
 If I want to search for multiple names:
 
-    FirstName:String='Andrew'|FirstName:String='Doug'
+    User.FirstName:String='Andrew'|User.FirstName:String='Doug'
  
 Which can be shortened by using a List:
 
-    FirstName:String=('Andrew','Doug')
+    User.FirstName:String=('Andrew','Doug')
         
 Each item in a List is separated by a ','.
  
 Valid List syntax:
 
      (value1[,value2,...])
+     
+StringQuery supports simple JOINS.  Let's say we have the following resources
+with the following entities:
+
+    +Person Resource+
+
+    Id:Int
+    FirstName:String
+    LastName:String
+
+    +Student Resource+
+
+    Id:Int
+    Person.Id:Int
+    Major:String
+
+Using the query below, we can join Person and Student on PersonId.
+
+    Person.FirstName:String='Andrew'&Person.LastName:String='Schools'&Student.PersonId:@=Person.Id
 
 Parser Options:
 
@@ -77,3 +100,6 @@ Parser Options:
     --export        <JSON|SQL>                  Export to what format         Defaults to JSON     
 
 To do / issues:
+
+    
+
