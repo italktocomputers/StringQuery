@@ -5,7 +5,7 @@ static void toJSON(struct Statement* sts[], int sts_index) {
     
     for (; i<sts_index; i++) {
         printf(" {\n");
-        printf("  'Entity': '%s',\n", sts[i]->entity);
+        printf("  'Resource': '%s',\n", sts[i]->resource);
         printf("  'Type': '%s',\n", sts[i]->type);
         printf("  'Operator': '%s',\n", sts[i]->operator);
         
@@ -38,7 +38,7 @@ static void toJSON(struct Statement* sts[], int sts_index) {
         }
         
         printf("  'Filter_Type': '%s'\n", sts[i]->filter_type);
-        printf("  'Concat': '%s'\n", sts[i]->concat);
+        printf("  'Conjunctive': '%s'\n", sts[i]->conjunctive);
         printf(" }");
         
          if (i < sts_index-1)

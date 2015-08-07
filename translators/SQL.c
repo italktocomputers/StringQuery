@@ -1,13 +1,13 @@
 #define MAX_SQL 60000
 
 static void buffer_checks(struct Statement* st) {
-    if (strlen(st->entity) > ENTITY_MAX+1) {
-        printf(ENTITY_MAX_MSG);
+    if (strlen(st->resource) > RESOURCE_MAX+1) {
+        printf(RESOURCE_MAX_MSG);
         exit(DEFAULT_EXIT);
     }
     
-    if (strlen(st->type) > ENTITY_TYPE_MAX+1) {
-        printf(ENTITY_TYPE_MAX_MSG);
+    if (strlen(st->type) > RESOURCE_TYPE_MAX+1) {
+        printf(RESOURCE_TYPE_MAX_MSG);
         exit(DEFAULT_EXIT);
     }
     
@@ -21,9 +21,9 @@ static void buffer_checks(struct Statement* st) {
         exit(DEFAULT_EXIT);
     }
     
-    if (st->concat != NULL) {
-        if (strlen(st->concat) > LOGIC_OP_MAX+1) {
-            printf(LOGIC_OP_MAX_MSG);
+    if (st->conjunctive != NULL) {
+        if (strlen(st->conjunctive) > CONJUNCTIVE_MAX+1) {
+            printf(CONJUNCTIVE_MAX_MSG);
             exit(DEFAULT_EXIT);
         }
     }
@@ -46,19 +46,19 @@ static char* listToSQL(struct Statement* st, char* sql) {
     char* token;
     token = strtok(newstr, ",");
     
-    sprintf(sql + strlen(sql), "%s %s %s", st->entity, st->operator, token);
+    sprintf(sql + strlen(sql), "%s %s %s", st->resource, st->operator, token);
     
     while (token != NULL) {
         int l = strlen(token);
         token = strtok (NULL, ",");
         
         if (token != NULL) {
-            sprintf(sql + strlen(sql), " OR %s %s %s", st->entity, st->operator, token);
+            sprintf(sql + strlen(sql), " OR %s %s %s", st->resource, st->operator, token);
         }
     }
     
-    if (st->concat != NULL) {
-        if (strcmp(st->concat, "&") == 0) {
+    if (st->conjunctive != NULL) {
+        if (strcmp(st->conjunctive, "&") == 0) {
             strcat(sql, " AND ");
         } else {
             strcat(sql, " OR ");
@@ -74,10 +74,10 @@ void toSQL(struct Statement* sts[], int sts_index) {
         buffer_checks(sts[i]);
         
         if (strcmp(sts[i]->filter_type, "Scalar") == 0) {
-            sprintf(sql + strlen(sql), "%s %s %s", sts[i]->entity, sts[i]->operator, sts[i]->filter);
+            sprintf(sql + strlen(sql), "%s %s %s", sts[i]->resource, sts[i]->operator, sts[i]->filter);
             
-            if (sts[i]->concat != NULL) {
-                if (strcmp(sts[i]->concat, "&") == 0) {
+            if (sts[i]->conjunctive != NULL) {
+                if (strcmp(sts[i]->conjunctive, "&") == 0) {
                     strcat(sql, " AND ");
                 } else {
                     strcat(sql, " OR ");
