@@ -329,7 +329,12 @@ static void validate_resource_type(char code[], int cursor, char value[], int le
     }
     
     if (ok == 0) {
-        sprintf(msg, "Syntax error.  Invalid type");
+        if (strlen(value) >= 50) {
+            sprintf(msg, "Syntax error.  Invalid type");
+        } else {
+            sprintf(msg, "Syntax error.  Invalid type '%s'", value);
+        }
+        
         print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }
     
@@ -385,7 +390,12 @@ static void validate_operator(char code[], int cursor, char value[], int length,
     }
     
     if (ok == 0) {
-        sprintf(msg, "Syntax error.  Not a valid operator");
+        if (strlen(value) >= 50) {
+            sprintf(msg, "Syntax error.  Not a valid operator");
+        } else {
+            sprintf(msg, "Syntax error.  Not a valid operator: '%s'", value);
+        }
+        
         print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }
     
@@ -644,7 +654,12 @@ static void validate_int(char code[], int cursor, char value[], int length, cons
     }
     
     if (error == 1) {
-        sprintf(msg, "Syntax error.  Not a integer");
+        if (strlen(value) >= 50) {
+            sprintf(msg, "Syntax error.  Not a integer");
+        } else {
+            sprintf(msg, "Syntax error.  Not a integer: '%s'", value);
+        }
+        
         print_error(code, cursor+i, msg, EXIT_INVALID_SYNTAX);
     }
 }
@@ -691,10 +706,20 @@ static void validate_double(char code[], int cursor, char value[], int length, c
     }
     
     if (error == 1) {
-        sprintf(msg, "Syntax error.  Not a decimal");
+        if (strlen(value) >= 50) {
+            sprintf(msg, "Syntax error.  Not a decimal");
+        } else {
+            sprintf(msg, "Syntax error.  Not a decimal: '%s'", value);
+        }
+        
         print_error(code, cursor+i, msg, EXIT_INVALID_SYNTAX);
     } else if (error == 2) {
-        sprintf(msg, "Syntax error.  Too many decimals");
+        if (strlen(value) >= 50) {
+            sprintf(msg, "Syntax error.  Too many decimals");
+        } else {
+            sprintf(msg, "Syntax error.  Too many decimals '%s'", value);
+        }
+        
         print_error(code, cursor+i, msg, EXIT_INVALID_SYNTAX);
     }
 }
