@@ -348,6 +348,13 @@ static void validate_operator(char code[], int cursor, char value[], int length,
     int ok = 0;
     char msg[100];
     
+    if (strcmp(st->type, "@") == 0) {
+        if (strcmp(value, "=") != 0) {
+            sprintf(msg, "Syntax error.  Expecting '='");
+            print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
+        }
+    }
+    
     if (strcmp(value, "=") == 0) {
         // I'm making assumptions here.  I'm assuming that if they specify
         // '==', '=>' or '=<', they really mean...
@@ -460,7 +467,6 @@ static void validate_var(char code[], int cursor, char value[], int length, cons
                 break;
         }
     }
-    
     
     if (error == 1) {
         sprintf(msg, "Syntax error.  Invalid character '%c' for Var", value[i]);
