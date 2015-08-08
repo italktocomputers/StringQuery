@@ -782,7 +782,7 @@ static int substr(char* str, int start, int end, char* substr, int max) {
 static int clean(char value[], int length, char* str) {
     int i = 0;
     int x = 0;
-    char tmp[RESOURCE_MAX];
+    char tmp[RESOURCE_MAX+1];
     
     for (; i<length; i++) {
         if (value[i] == '\n')

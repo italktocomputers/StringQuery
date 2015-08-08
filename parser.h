@@ -13,6 +13,8 @@
 #define CONJUNCTIVE_MAX 1
 #define CONJUNCTIVE_MAX_MSG "Conjunctive operator too large!  Aborting..."
 
+#define MAX_RESOURCES 100
+
 #define DEFAULT_EXIT 1
 
 

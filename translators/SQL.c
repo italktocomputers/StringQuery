@@ -1,28 +1,28 @@
 #define MAX_SQL 60000
 
 static void buffer_checks(struct Statement* st) {
-    if (strlen(st->resource) > RESOURCE_MAX+1) {
+    if (strlen(st->resource) > RESOURCE_MAX) {
         printf(RESOURCE_MAX_MSG);
         exit(DEFAULT_EXIT);
     }
     
-    if (strlen(st->type) > RESOURCE_TYPE_MAX+1) {
+    if (strlen(st->type) > RESOURCE_TYPE_MAX) {
         printf(RESOURCE_TYPE_MAX_MSG);
         exit(DEFAULT_EXIT);
     }
     
-    if (strlen(st->operator) > OPERATOR_MAX+1) {
+    if (strlen(st->operator) > OPERATOR_MAX) {
         printf(OPERATOR_MAX_MSG);
         exit(DEFAULT_EXIT);
     }
     
-    if (strlen(st->filter) > FILTER_MAX+1) {
+    if (strlen(st->filter) > FILTER_MAX) {
         printf(FILTER_MAX_MSG);
         exit(DEFAULT_EXIT);
     }
     
     if (st->conjunctive != NULL) {
-        if (strlen(st->conjunctive) > CONJUNCTIVE_MAX+1) {
+        if (strlen(st->conjunctive) > CONJUNCTIVE_MAX) {
             printf(CONJUNCTIVE_MAX_MSG);
             exit(DEFAULT_EXIT);
         }
@@ -69,7 +69,7 @@ static char* listToSQL(struct Statement* st, char* sql) {
 static void get_resource_name(char resource[RESOURCE_MAX], char* id) {
     int i = 0;
     int length = strlen(resource);
-    char buffer[RESOURCE_MAX] = {};
+    char buffer[RESOURCE_MAX+1] = {};
     
     for(; i<length; i++) {
         if (resource[i] == '.')
@@ -94,14 +94,14 @@ static int in_array(char* arr[], char item[], int length) {
     return 0;
 }
 
-static int unique(char* resources[], char* unique_resources[100], int length) {
+static int unique(char* resources[], char* unique_resources[MAX_RESOURCES], int length) {
     int i = 0;
     int x = 0;
     
     for (; i<length; i++) {
         if (in_array(unique_resources, resources[i], x) == 0) {
             // Add this item to our array
-            char* p = (char*)malloc(sizeof(100));
+            char* p = (char*)malloc(RESOURCE_MAX+1);
             strcpy(p, resources[i]);
             
             unique_resources[x++] = p;
@@ -115,10 +115,10 @@ void toSQL(struct Statement* sts[], int sts_index) {
     int i = 0;
     char sql[MAX_SQL] = {};
     
-    char* identifiers[100];
+    char* identifiers[MAX_RESOURCES];
     int identifiers_length;
     
-    char* unique_identifiers[100] = {};
+    char* unique_identifiers[MAX_RESOURCES] = {};
     int unique_identifiers_length;
     
     //for (; i<sts_index; i++) {
@@ -130,13 +130,13 @@ void toSQL(struct Statement* sts[], int sts_index) {
     // Fetch ALL resources and then compile a list of unique ones so we
     // can build a SELECT and FROM list.
     for (i=0; i<sts_index; i++) {
-        char identifier[RESOURCE_MAX] = {};
+        char identifier[RESOURCE_MAX+1] = {};
         
         // If resource is User.FirstName then after we call the get_resource_name
         // function, then identifier will be equal to 'User' 
         get_resource_name(sts[i]->resource, identifier);
         
-        char* p_resource = malloc(sizeof(RESOURCE_MAX));
+        char* p_resource = malloc(RESOURCE_MAX+1);
         
         strcpy(p_resource, identifier);
         
