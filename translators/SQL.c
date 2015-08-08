@@ -151,7 +151,12 @@ void toSQL(struct Statement* sts[], int sts_index) {
     // Print SELECT list
     for (i=0; i<unique_identifiers_length; i++) {
         strcat(sql, " ");
+        
+        if (i != 0)
+            strcat(sql, ",");
+        
         strcat(sql, unique_identifiers[i]);
+        
         strcat(sql, ".*\n");
     }
     
