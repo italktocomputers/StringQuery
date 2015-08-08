@@ -468,6 +468,9 @@ static void validate_var(char code[], int cursor, char value[], int length, cons
     } else if (period > 1) {
         sprintf(msg, "Syntax error.  Too many periods");
         print_error(code, cursor-length, msg, EXIT_INVALID_SYNTAX);
+    } else if (period == 0) {
+        sprintf(msg, "Syntax error.  Expecting '.'");
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }
 }
 
