@@ -12,17 +12,7 @@
 #define MSG_NO_CODE_TO_PROCESS "No code to process"
 #define MSG_TOO_MUCH_CODE_TO_PROCESS "Too much code to process"
 
-#define MSG_UNRECOGNIZED_TOKEN "Unrecognized token"
-#define EXIT_UNRECOGNIZED_TOKEN 2
-
-#define MSG_INVALID_CHARACTER "Invalid Character"
-#define EXIT_INVALID_CHARACTER 3
-
-#define MSG_INVALID_SYNTAX "Syntax Error"
 #define EXIT_INVALID_SYNTAX 4
-
-#define MSG_RESERVED_KEYWORD "Reserved keyword"
-#define EXIT_RESERVED_KEYWORD 5
 
 #define MSG_NO_EXPORT_TYPE "You have not specified a export type"
 #define MSG_NO_EXPORT_SUPPORT "Supported export formats: JSON, SQL"
@@ -175,7 +165,7 @@ static void get_operator(char code[], int* cursor, struct Statement* st) {
     int length = substr(code, start, tmp_cursor, p_operator, OPERATOR_MAX);
     
     if (length == -1) {
-        print_error(code, tmp_cursor, OPERATOR_MAX_MSG, EXIT_INVALID_CHARACTER);
+        print_error(code, tmp_cursor, OPERATOR_MAX_MSG, EXIT_INVALID_SYNTAX);
     }
     
     validate_operator(code, tmp_cursor, p_operator, length, st);
@@ -222,7 +212,7 @@ static void get_filter(char code[], int* cursor, struct Statement* st, char* typ
     int length = substr(code, start, tmp_cursor, p_filter, FILTER_MAX);
     
     if (length == -1) {
-        print_error(code, tmp_cursor, FILTER_MAX_MSG, EXIT_INVALID_CHARACTER);
+        print_error(code, tmp_cursor, FILTER_MAX_MSG, EXIT_INVALID_SYNTAX);
     }
     
     validate_filter(code, tmp_cursor, type, p_filter, length, st);
@@ -239,7 +229,7 @@ static void get_conjunctive(char code[], int* cursor, struct Statement* st) {
     int length = substr(code, *cursor, *cursor, p_conjunctive, OPERATOR_MAX);
     
     if (length == -1) {
-        print_error(code, *cursor, OPERATOR_MAX_MSG, EXIT_INVALID_CHARACTER);
+        print_error(code, *cursor, OPERATOR_MAX_MSG, EXIT_INVALID_SYNTAX);
     }
     
     validate_conjunctive(code, *cursor, p_conjunctive, length, st);
@@ -305,22 +295,22 @@ static void validate_resource(char code[], int cursor, char value[], int length,
     
     if (error == 1) {
         sprintf(msg, "Syntax error.  No type");
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     } else if (error == 2) {
         sprintf(msg, "Syntax error.  Invalid character '%c'", value[i]);
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     } else if (code[cursor] == '\0') {
         sprintf(msg, "Syntax error.  Unexpected END OF LINE");
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     } else if (x == 0) {
         sprintf(msg, "Syntax error.  No Resource");
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     } else if (period > 1) {
         sprintf(msg, "Syntax error.  Unexpected '.'");
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     } else if (period == 0) {
         sprintf(msg, "Syntax error.  Expecting '.'");
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }
 }
 
@@ -345,12 +335,12 @@ static void validate_resource_type(char code[], int cursor, char value[], int le
             sprintf(msg, "Syntax error.  Invalid type '%s'", value);
         }
         
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }
     
     if (code[cursor] == '\0') {
         sprintf(msg, "Syntax error.  Unexpected END OF LINE");
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }    
 }
 
@@ -364,17 +354,17 @@ static void validate_operator(char code[], int cursor, char value[], int length,
         
         if (code[cursor+1] == '=') {
             sprintf(msg, "Syntax error.  Use '=' instead of '=='");
-            print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+            print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
         }
         
         if (code[cursor+1] == '>') {
             sprintf(msg, "Syntax error.  Use '>=' instead of '=>'");
-            print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+            print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
         }
         
         if (code[cursor+1] == '<') {
             sprintf(msg, "Syntax error.  Use '<=' instead of '=<'");
-            print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+            print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
         }
         
         ok = 1;
@@ -399,12 +389,12 @@ static void validate_operator(char code[], int cursor, char value[], int length,
             sprintf(msg, "Syntax error.  Not a valid operator: '%s'", value);
         }
         
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }
     
     if (code[cursor] == '\0') {
         sprintf(msg, "Syntax error.  Unexpected END OF LINE");
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }
 }
 
@@ -430,7 +420,7 @@ static void validate_conjunctive(char code[], int cursor, char value[], int leng
     
     if (value[0] != '&' && value[0] != '|') {
         sprintf(msg, "Syntax error.  Expecting '&' or '|' but got '%c' instead", value[0]);
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }
 }
 
@@ -474,10 +464,10 @@ static void validate_var(char code[], int cursor, char value[], int length, cons
     
     if (error == 1) {
         sprintf(msg, "Syntax error.  Invalid character '%c' for Var", value[i]);
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     } else if (period > 1) {
         sprintf(msg, "Syntax error.  Too many periods");
-        print_error(code, cursor-length, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor-length, msg, EXIT_INVALID_SYNTAX);
     }
 }
 
@@ -488,7 +478,7 @@ static void validate_string(char code[], int cursor, char value[], int length, c
     
     if (value[0] != '\'' && value[0] != '"') {
         sprintf(msg, "Syntax error.  String must start with a quote but got '%c' instead", value[0]);
-        print_error(code, cursor-length, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor-length, msg, EXIT_INVALID_SYNTAX);
     }
     
     // I need to find end quote.  I can't just go to end of value and look there
@@ -506,7 +496,7 @@ static void validate_string(char code[], int cursor, char value[], int length, c
     
     if (value[pos] != value[0]) {
         sprintf(msg, "Syntax error.  String must have matching ending quote but got '%c' instead", value[length]);
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }
     
     // Now that I know where the string ends, I need to make sure they did not
@@ -521,7 +511,7 @@ static void validate_string(char code[], int cursor, char value[], int length, c
             
             default:
                 sprintf(msg, "Syntax error.  Unexpected character", value[length]);
-                print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+                print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
         }
     }
 }
@@ -531,12 +521,12 @@ static void validate_list(char code[], int cursor, char* type, char value[], int
     
     if (value[0] != '(') {
         sprintf(msg, "Syntax error.  List must start with a '('.  Got '%c' instead", value[0]);
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }
     
     if (value[length-1] != ')') {
         sprintf(msg, "Syntax error.  List must end with a ')'.  Got '%c' instead", value[length-1]);
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }
     
     if (strcmp(type, "Int") == 0) {
@@ -626,7 +616,7 @@ static void validate_int(char code[], int cursor, char value[], int length, cons
     
     if (length == 0) {
         sprintf(msg, "Syntax error.  Not a integer");
-        print_error(code, cursor, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }
     
     for (; i<length; i++) {
@@ -661,7 +651,7 @@ static void validate_int(char code[], int cursor, char value[], int length, cons
             sprintf(msg, "Syntax error.  Not a integer: '%s'", value);
         }
         
-        print_error(code, cursor+i, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor+i, msg, EXIT_INVALID_SYNTAX);
     }
 }
 
@@ -673,7 +663,7 @@ static void validate_double(char code[], int cursor, char value[], int length, c
     
     if (length == 0) {
         sprintf(msg, "Syntax error.  Not a double");
-        print_error(code, cursor+i, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor+i, msg, EXIT_INVALID_SYNTAX);
     }
     
     for (i=0; i<length; i++) { 
@@ -713,7 +703,7 @@ static void validate_double(char code[], int cursor, char value[], int length, c
             sprintf(msg, "Syntax error.  Not a decimal: '%s'", value);
         }
         
-        print_error(code, cursor+i, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor+i, msg, EXIT_INVALID_SYNTAX);
     } else if (error == 2) {
         if (strlen(value) >= 50) {
             sprintf(msg, "Syntax error.  Too many decimals");
@@ -721,7 +711,7 @@ static void validate_double(char code[], int cursor, char value[], int length, c
             sprintf(msg, "Syntax error.  Too many decimals '%s'", value);
         }
         
-        print_error(code, cursor+i, msg, EXIT_INVALID_CHARACTER);
+        print_error(code, cursor+i, msg, EXIT_INVALID_SYNTAX);
     }
 }
 
