@@ -132,8 +132,8 @@ void toSQL(struct Statement* sts[], int sts_index) {
     for (i=0; i<sts_index; i++) {
         char identifier[RESOURCE_MAX+1] = {};
         
-        // If resource is User.FirstName then after we call the get_resource_name
-        // function, then identifier will be equal to 'User' 
+        // If resource is User.FirstName, then after we call the get_resource_name
+        // function, identifier will be equal to 'User' 
         get_resource_name(sts[i]->resource, identifier);
         
         char* p_resource = malloc(RESOURCE_MAX+1);
@@ -145,8 +145,27 @@ void toSQL(struct Statement* sts[], int sts_index) {
     
     identifiers_length = i;
     
+    // We need to also look at each variable type as we might have a resource
+    // listed there that is NOT listed elsewhere
+    for (i=0; i<sts_index; i++) {
+        if (strcmp(sts[i]->type, "@") == 0) {
+            char identifier[RESOURCE_MAX+1] = {};
+            
+            // If variable is User.FirstName, then after we call the get_resource_name
+            // function, identifier will be equal to 'User' 
+            get_resource_name(sts[i]->filter, identifier);
+            
+            char* p_resource = malloc(RESOURCE_MAX+1);
+            
+            strcpy(p_resource, identifier);
+            
+            identifiers[identifiers_length] = p_resource;
+            identifiers_length++;
+        }
+    }
+    
     // We only need unique resource names to buold our SELECT and FROM list 
-    unique_identifiers_length = unique(identifiers, unique_identifiers, i);
+    unique_identifiers_length = unique(identifiers, unique_identifiers, identifiers_length);
     
     // Print SELECT list
     for (i=0; i<unique_identifiers_length; i++) {
