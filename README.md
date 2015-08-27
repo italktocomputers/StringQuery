@@ -91,6 +91,16 @@ with the following entities:
 Using the query below, we can join Person and Student on PersonId.
 
     Person.FirstName:String='Andrew'&Person.LastName:String='Schools'&Student.PersonId:@=Person.Id
+    
+Exporting to SQL will output:
+    SELECT
+      Person.*
+      ,Student.*
+    FROM Person, Student
+    WHERE Person.FirstName = 'Andrew' 
+    AND Person.LastName = 'Schools' 
+    AND Student.PersonId = Person.Id
+
 
 Parser Options:
 
@@ -100,6 +110,6 @@ Parser Options:
     --export        <JSON|SQL>                  Export to what format         Defaults to JSON     
 
 To do / issues:
-
+    
     
 
