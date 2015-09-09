@@ -6,11 +6,9 @@ purposes as well.  Includes syntax and validity checking.
 
 
 WARNING: THIS SOFTWARE IS IN ALPHA AND SHOULD NOT BE USED IN PRODUCTION.  I HAVE 
-ONLY COMPILED USING GCC ON CENTOS 6.6.  AS OF RIGHT NOW, ASCII IS THE ONLY
-SUPPORTED CHARACTER ENCODING ALTHOUGH I WILL BE LOOKING INTO SUPPORTING UTF-8.
-IF YOU ARE ACCEPTING CODE FROM A URL IT SHOULD BE ENCODED USING THE
-APPLICATION/X-WWW-FORM-URLENCODED FORMAT.  NOT DOING SO CAN LEAD TO COMMAND 
-INJECTION.  
+ONLY COMPILED USING GCC ON CENTOS 6.6. IF YOU ARE ACCEPTING CODE FROM A URL IT 
+SHOULD BE ENCODED USING THE APPLICATION/X-WWW-FORM-URLENCODED FORMAT.  NOT DOING 
+SO CAN LEAD TO COMMAND INJECTION.  
 
 More information on this encoding: 
 http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
@@ -76,13 +74,13 @@ Valid List syntax:
 StringQuery supports simple JOINS.  Let's say we have the following resources
 with the following entities:
 
-    +Person Resource+
+    Person Resource with the following entities:
 
     Id:Int
     FirstName:String
     LastName:String
 
-    +Student Resource+
+    Student Resource with the following entities:
 
     Id:Int
     Person.Id:Int
