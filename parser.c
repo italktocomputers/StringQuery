@@ -20,6 +20,12 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+To do:
+
+- Cursor off at errors
+- If not end quote is found, try to find where it should go
+- 
 */
 
 #include <stdio.h>
@@ -684,7 +690,7 @@ static void validate_int(char code[], int cursor, char value[], int length, cons
             sprintf(msg, "Syntax error.  Not a integer: '%s'", value);
         }
         
-        print_error(code, cursor+i, msg, EXIT_INVALID_SYNTAX);
+        print_error(code, cursor-length+i, msg, EXIT_INVALID_SYNTAX);
     }
 }
 
@@ -696,7 +702,7 @@ static void validate_double(char code[], int cursor, char value[], int length, c
     
     if (length == 0) {
         sprintf(msg, "Syntax error.  Not a double");
-        print_error(code, cursor+i, msg, EXIT_INVALID_SYNTAX);
+        print_error(code, cursor, msg, EXIT_INVALID_SYNTAX);
     }
     
     for (i=0; i<length; i++) { 
@@ -736,7 +742,7 @@ static void validate_double(char code[], int cursor, char value[], int length, c
             sprintf(msg, "Syntax error.  Not a decimal: '%s'", value);
         }
         
-        print_error(code, cursor+i, msg, EXIT_INVALID_SYNTAX);
+        print_error(code, cursor-length+i, msg, EXIT_INVALID_SYNTAX);
     } else if (error == 2) {
         if (strlen(value) >= 50) {
             sprintf(msg, "Syntax error.  Too many decimals");
@@ -744,7 +750,7 @@ static void validate_double(char code[], int cursor, char value[], int length, c
             sprintf(msg, "Syntax error.  Too many decimals '%s'", value);
         }
         
-        print_error(code, cursor+i, msg, EXIT_INVALID_SYNTAX);
+        print_error(code, cursor-length+i, msg, EXIT_INVALID_SYNTAX);
     }
 }
 
