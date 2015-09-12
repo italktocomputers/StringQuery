@@ -98,6 +98,13 @@ Exporting to SQL will output:
     WHERE Person.FirstName = 'Andrew' 
     AND Person.LastName = 'Schools' 
     AND Student.PersonId = Person.Id
+    
+You can also send a URL encoded string to the parser:
+
+    ./a.out --code "User.FirstName%3AString%3D%27Andrew%27%26User.Age%3AInt%3D(30%2C31%2C32)" --code-format urlencoded
+
+This allows you to encode a StringQuery string from a URL and safely pass it to 
+the parser without worrying about command injection.
 
 
 Parser Options:
