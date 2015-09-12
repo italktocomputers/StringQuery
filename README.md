@@ -1,8 +1,8 @@
 StringQuery v 0.1
 
 
-A little query language that can be embedded in a URL.  Can be used for other
-purposes as well.  Includes syntax and validity checking.
+A little query language that can be embedded in a URL.  Can make querying data via 
+a Restful service easier and cleaner.   Includes syntax and validity checking.
 
 
 WARNING: THIS SOFTWARE IS IN ALPHA AND SHOULD NOT BE USED IN PRODUCTION.  I HAVE 
