@@ -1,85 +1,11 @@
-/*
-The MIT License (MIT)
-
-Copyright (c) 2015 Andrew Schools
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h> 
+#include <math.h>
+#include "common.h"
 #include "parser.h"
-#include "translators/JSON.c"
-#include "translators/SQL.c"
 
-#define STATEMENTS_ARRAY_LENGTH 1000
-#define CODE_BUFFER_LENGTH 50000
-
-#define MSG_NO_CODE_TO_PROCESS "No code to process"
-#define MSG_TOO_MUCH_CODE_TO_PROCESS "Too much code to process"
-
-#define EXIT_INVALID_SYNTAX 4
-
-#define MSG_NO_EXPORT_TYPE "You have not specified a export type"
-#define MSG_NO_EXPORT_SUPPORT "Supported export formats: JSON, SQL"
-#define MSG_NO_CODE_SWITCH "Must specify --code or --file"
-#define MSG_NO_CODE_FORMAT "You have not specified a code format"
-
-#define EXPORT_ARG_LENGTH 10
-#define CODE_FORMAT_ARG_LENGTH 50
-
-static int parse(char[], int*, struct Statement*[], int*);
-static int get_statement(char[], int*, struct Statement*[], int*);
-static int is_end(char[], int*);
-static int substr(char*, int, int, char*, int);
-static int clean(char[], int, char*);
-
-int hex_to_dec(char[], int);
-
-static void urldecode(char[], char*);
-static void print_error(char[], int, char[], int);
-static void exception(char[], char[], int);
-
-static void get_resource(char[], int*, struct Statement*);
-static void get_resource_type(char[], int*, struct Statement*);
-static void get_operator(char[], int*, struct Statement*);
-static void get_filter(char[], int*, struct Statement*, char*);
-static void get_conjunctive(char[], int*, struct Statement*);
-
-static void validate_resource(char[], int, char[], int, const struct Statement*);
-static void validate_resource_type(char[], int, char[], int, const struct Statement*);
-static void validate_operator(char[], int, char[], int, const struct Statement*);
-static void validate_filter(char[], int, char*, char[], int, const struct Statement*);
-static void validate_conjunctive(char[], int, char[], int, const struct Statement*);
-
-static void validate_var(char[], int, char[], int, const struct Statement*);
-static void validate_string(char[], int, char[], int, const struct Statement*);
-static void validate_int(char[], int, char[], int, const struct Statement*);
-static void validate_double(char[], int, char[], int, const struct Statement*);
-static void validate_list(char[], int, char*, char[], int, const struct Statement*);
-static void validate_list_string(char[], int, char[], int, const struct Statement*);
-static void validate_list_double(char[], int, char[], int, const struct Statement*);
-static void validate_list_int(char[], int, char[], int, const struct Statement*);
-
-static void get_resource(char code[], int* cursor, struct Statement* st) {
+char* get_resource(char code[], int* cursor) {
     int start = *cursor;
     int tmp_cursor = *cursor;
     
@@ -109,14 +35,12 @@ static void get_resource(char code[], int* cursor, struct Statement* st) {
         print_error(code, tmp_cursor, RESOURCE_MAX_MSG, DEFAULT_EXIT);
     }
     
-    validate_resource(code, tmp_cursor, p_resource, length, st);
-    
-    st->resource = p_resource;
-    
     *cursor = tmp_cursor + 2; // Move cursor to resource type
+    
+    return p_resource;
 }
 
-static void get_resource_type(char code[], int* cursor, struct Statement* st) {
+char* get_resource_type(char code[], int* cursor) {
     int start = *cursor;
     int tmp_cursor = *cursor;
     int ok = 0;
@@ -154,14 +78,12 @@ static void get_resource_type(char code[], int* cursor, struct Statement* st) {
         print_error(code, tmp_cursor, RESOURCE_TYPE_MAX_MSG, DEFAULT_EXIT);
     }
     
-    validate_resource_type(code, tmp_cursor, p_resource_type, length, st);
-    
-    st->type = p_resource_type;
-    
     *cursor = tmp_cursor + 1; // Move cursor to operator 
+    
+    return p_resource_type;
 }
 
-static void get_operator(char code[], int* cursor, struct Statement* st) {
+char* get_operator(char code[], int* cursor) {
     int start = *cursor;
     int tmp_cursor = *cursor;
     
@@ -192,23 +114,21 @@ static void get_operator(char code[], int* cursor, struct Statement* st) {
         print_error(code, tmp_cursor, OPERATOR_MAX_MSG, EXIT_INVALID_SYNTAX);
     }
     
-    validate_operator(code, tmp_cursor, p_operator, length, st);
-    
-    st->operator = p_operator;
-    
     *cursor = tmp_cursor + 1; // Move cursor to filter
+    
+    return p_operator;
 }  
 
-static void get_filter(char code[], int* cursor, struct Statement* st, char* type) {
+char* get_filter(char code[], int* cursor, char* type) {
     int start = *cursor;
     int tmp_cursor = *cursor;
     int inside_string = 0;
     char quote_type; // remember starting quote
     
     if (code[tmp_cursor] == '(') {
-        st->filter_type = "List";
+        type = "List";
     } else {
-        st->filter_type = "Scalar";
+        type = "Scalar";
     }
     
     while (code[tmp_cursor] != '\0') {
@@ -239,14 +159,12 @@ static void get_filter(char code[], int* cursor, struct Statement* st, char* typ
         print_error(code, tmp_cursor, FILTER_MAX_MSG, EXIT_INVALID_SYNTAX);
     }
     
-    validate_filter(code, tmp_cursor, type, p_filter, length, st);
-    
-    st->filter = p_filter;
-    
     *cursor = tmp_cursor;
+    
+    return p_filter;
 }
 
-static void get_conjunctive(char code[], int* cursor, struct Statement* st) {    
+char* get_conjunctive(char code[], int* cursor) {    
     char* p_conjunctive = (char*)malloc(OPERATOR_MAX+1);
     
     // Length should always be 1 since we can have either an '&' or an '|'
@@ -256,11 +174,9 @@ static void get_conjunctive(char code[], int* cursor, struct Statement* st) {
         print_error(code, *cursor, OPERATOR_MAX_MSG, EXIT_INVALID_SYNTAX);
     }
     
-    validate_conjunctive(code, *cursor, p_conjunctive, length, st);
-    
-    st->conjunctive = p_conjunctive;
-    
     *cursor += length;
+    
+    return p_conjunctive;
 }
 
 static int is_end(char code[], int* cursor) {
@@ -338,7 +254,7 @@ static void validate_resource(char code[], int cursor, char value[], int length,
     }
 }
 
-static void validate_resource_type(char code[], int cursor, char value[], int length, const struct Statement* st) {
+void validate_resource_type(char code[], int cursor, char value[], int length, const struct Statement* st) {
     int ok = 0;
     char msg[100];
     
@@ -368,7 +284,7 @@ static void validate_resource_type(char code[], int cursor, char value[], int le
     }    
 }
 
-static void validate_operator(char code[], int cursor, char value[], int length, const struct Statement* st) {
+void validate_operator(char code[], int cursor, char value[], int length, const struct Statement* st) {
     int ok = 0;
     char msg[100];
     
@@ -429,7 +345,7 @@ static void validate_operator(char code[], int cursor, char value[], int length,
     }
 }
 
-static void validate_filter(char code[], int cursor, char* type, char value[], int length, const struct Statement* st) {
+void validate_filter(char code[], int cursor, char* type, char value[], int length, const struct Statement* st) {
     // Since we can have filters of different types, we need to figure out what 
     // type of filter this is; String, Double, Int, List
     
@@ -446,7 +362,7 @@ static void validate_filter(char code[], int cursor, char* type, char value[], i
     }
 }
 
-static void validate_conjunctive(char code[], int cursor, char value[], int length, const struct Statement* st) {
+void validate_conjunctive(char code[], int cursor, char value[], int length, const struct Statement* st) {
     char msg[100];
     
     if (value[0] != '&' && value[0] != '|') {
@@ -455,7 +371,7 @@ static void validate_conjunctive(char code[], int cursor, char value[], int leng
     }
 }
 
-static void validate_var(char code[], int cursor, char value[], int length, const struct Statement* st) {
+void validate_var(char code[], int cursor, char value[], int length, const struct Statement* st) {
     int i = 0;
     int period = 0;
     char msg[100];
@@ -504,7 +420,7 @@ static void validate_var(char code[], int cursor, char value[], int length, cons
     }
 }
 
-static void validate_string(char code[], int cursor, char value[], int length, const struct Statement* st) {
+void validate_string(char code[], int cursor, char value[], int length, const struct Statement* st) {
     int i = 0;
     char msg[100];
     char pos = 1;
@@ -549,7 +465,7 @@ static void validate_string(char code[], int cursor, char value[], int length, c
     }
 }
 
-static void validate_list(char code[], int cursor, char* type, char value[], int length, const struct Statement* st) {
+void validate_list(char code[], int cursor, char* type, char value[], int length, const struct Statement* st) {
     char msg[100];
     
     if (value[0] != '(') {
@@ -573,7 +489,7 @@ static void validate_list(char code[], int cursor, char* type, char value[], int
     }
 }
 
-static void validate_list_string(char code[], int cursor, char value[], int length, const struct Statement* st) {
+void validate_list_string(char code[], int cursor, char value[], int length, const struct Statement* st) {
     int i = 1;
     int x = 0;
     char newstr[100] = {};
@@ -596,7 +512,7 @@ static void validate_list_string(char code[], int cursor, char value[], int leng
     }
 }
 
-static void validate_list_int(char code[], int cursor, char value[], int length, const struct Statement* st) {
+void validate_list_int(char code[], int cursor, char value[], int length, const struct Statement* st) {
     int i = 1;
     int x = 0;
     char newstr[100] = {};
@@ -619,7 +535,7 @@ static void validate_list_int(char code[], int cursor, char value[], int length,
     }
 }
 
-static void validate_list_double(char code[], int cursor, char value[], int length, const struct Statement* st) {
+void validate_list_double(char code[], int cursor, char value[], int length, const struct Statement* st) {
     int i = 1;
     int x = 0;
     char newstr[100] = {};
@@ -642,7 +558,7 @@ static void validate_list_double(char code[], int cursor, char value[], int leng
     }
 }
 
-static void validate_int(char code[], int cursor, char value[], int length, const struct Statement* st) {
+void validate_int(char code[], int cursor, char value[], int length, const struct Statement* st) {
     int i = 0;
     int error = 0;
     char msg[100];
@@ -688,7 +604,7 @@ static void validate_int(char code[], int cursor, char value[], int length, cons
     }
 }
 
-static void validate_double(char code[], int cursor, char value[], int length, const struct Statement* st) {
+void validate_double(char code[], int cursor, char value[], int length, const struct Statement* st) {
     int i = 0;
     int dec = 0;
     int error = 0;
@@ -748,7 +664,7 @@ static void validate_double(char code[], int cursor, char value[], int length, c
     }
 }
 
-static void print_error(char code[], int cursor, char msg[], int exit_code) {
+void print_error(char code[], int cursor, char msg[], int exit_code) {
     int i = 0;
     
     // We only want to show the section of code that failed
@@ -776,12 +692,12 @@ static void print_error(char code[], int cursor, char msg[], int exit_code) {
     exit(exit_code);
 }
 
-static void exception(char msg[], char func[], int exit_code) {
+void exception(char msg[], char func[], int exit_code) {
     printf("Exception: %s @ Function: %s\n", msg, func);
     exit(exit_code); 
 }
 
-static int substr(char* str, int start, int end, char* substr, int max) {
+int substr(char* str, int start, int end, char* substr, int max) {
     int i = 0;
     char buffer[100];
     
@@ -802,7 +718,7 @@ static int substr(char* str, int start, int end, char* substr, int max) {
     return i;
 }
 
-static int clean(char value[], int length, char* str) {
+int clean(char value[], int length, char* str) {
     int i = 0;
     int x = 0;
     char tmp[RESOURCE_MAX+1];
@@ -822,25 +738,25 @@ static int clean(char value[], int length, char* str) {
     return x;
 }
 
-static int get_statement(char code[], int* cursor, struct Statement* sts[], int* sts_index) {
+int get_statement(char code[], int* cursor, struct Statement* sts[], int* sts_index) {
     struct Statement* pst = (struct Statement*)malloc(sizeof(struct Statement));
-    
-    get_resource(code, cursor, pst);
-    get_resource_type(code, cursor, pst);
-    get_operator(code, cursor, pst);
-    get_filter(code, cursor, pst, pst->type);
+    char* type = (char*)malloc(sizeof(char[6]));
+    get_resource(code, cursor);
+    get_resource_type(code, cursor);
+    get_operator(code, cursor);
+    get_filter(code, cursor, type);
     
     int end = is_end(code, cursor);
     
     if (end != 0)
-        get_conjunctive(code, cursor, pst);
+        get_conjunctive(code, cursor);
     
     sts[(*sts_index)++] = pst;
     
     return end;
 }
 
-static int parse(char code[], int* cursor, struct Statement* sts[], int* sts_index) {
+int parse(char code[], int* cursor, struct Statement* sts[], int* sts_index) {
     int length;
     int new_length;
     
@@ -946,105 +862,4 @@ int hex_to_dec(char hex[], int length) {
     }
     
     return sum;
-}
-
-int main(int argc, const char* argv[]) {
-    int i = 0;
-    int sts_index = 0;
-    int cursor = 0;
-    char code[CODE_BUFFER_LENGTH] = {};
-    char export_type[10] = "JSON";
-    int code_switch = 0;
-    int file_switch = 0;
-    int export_switch = 0;
-    int code_format_switch = 0;
-    char code_format[50];
-    
-    struct Statement* sts[STATEMENTS_ARRAY_LENGTH];
-    
-    for (i=1; i<argc; i++) { 
-        if (strcmp(argv[i], "--code") == 0) {
-            code_switch = 1;
-            
-            if (argv[i+1] == NULL) {
-                printf("ERROR: %s\n", MSG_NO_CODE_TO_PROCESS);
-                exit(DEFAULT_EXIT);
-            }
-            
-            int x = strlen(argv[i+1]);
-            
-            if (x >= CODE_BUFFER_LENGTH) {
-                printf("ERROR: %s\n", MSG_TOO_MUCH_CODE_TO_PROCESS);
-                exit(DEFAULT_EXIT);
-            }
-            
-            strncpy(code, argv[i+1], CODE_BUFFER_LENGTH);
-        } else if (strcmp(argv[i], "--file") == 0) {
-            file_switch = 1;
-            
-            if (argv[i+1] == NULL) {
-                printf("ERROR: %s\n", MSG_NO_CODE_TO_PROCESS);
-                exit(DEFAULT_EXIT);
-            } else {
-                FILE *fp;
-                char c;
-                int x = 0;
-                
-                fp = fopen(argv[i+1], "r");
-                
-                while ((c = fgetc(fp)) != EOF) {
-                    if (x >= CODE_BUFFER_LENGTH) {
-                        printf("ERROR: %s\n", MSG_TOO_MUCH_CODE_TO_PROCESS);
-                        exit(DEFAULT_EXIT);
-                    }
-                     
-                    code[x++] = c;
-                }
-            }
-        } else if (strcmp(argv[i], "--export") == 0) {
-            export_switch = 1;
-            
-            if (argv[i+1] == NULL) {
-                printf("ERROR: %s\n", MSG_NO_EXPORT_TYPE);
-                exit(DEFAULT_EXIT);
-            }
-            
-            strncpy(export_type, argv[i+1], EXPORT_ARG_LENGTH);
-        } else if (strcmp(argv[i], "--code-format") == 0) {
-            code_format_switch = 1;
-            
-            if (argv[i+1] == NULL) {
-                printf("ERROR: %s\n", MSG_NO_CODE_FORMAT);
-                exit(DEFAULT_EXIT);
-            }
-            
-            strncpy(code_format, argv[i+1], CODE_FORMAT_ARG_LENGTH);
-        }
-    }
-    
-    if (code_switch == 0 && file_switch == 0) {
-        printf("ERROR: %s\n", MSG_NO_CODE_SWITCH);
-        exit(DEFAULT_EXIT);
-    }
-    
-    char decoded_code[CODE_BUFFER_LENGTH] = {};
-    
-    if (code_format_switch == 1 && strcmp(code_format, "urlencoded") == 0) {
-        urldecode(code, decoded_code); 
-    } else {
-        strncpy(decoded_code, code, CODE_BUFFER_LENGTH);
-    }
-    
-    parse(decoded_code, &cursor, sts, &sts_index);
-    
-    if (strcmp(export_type, "JSON") == 0) {
-        toJSON(sts, sts_index);
-    } else if(strcmp(export_type, "SQL") == 0) {
-        toSQL(sts, sts_index);
-    } else {
-        printf("ERROR: %s\n", MSG_NO_EXPORT_SUPPORT);
-        exit(DEFAULT_EXIT);
-    }
-    
-    return 0;
 }

@@ -1,52 +1,48 @@
-/*
-The MIT License (MIT)
+#include <stdlib.h>
 
-Copyright (c) 2015 Andrew Schools
+#ifndef PARSER_H
+#define PARSER_H
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+    struct Statement {
+        char* resource;
+        char* type;
+        char* operator;
+        char* filter;
+        char* filter_type;
+        char* conjunctive;
+    };
+     
+    static int parse(char[], int*, struct Statement*[], int*);
+    static int get_statement(char[], int*, struct Statement*[], int*);
+    static int is_end(char[], int*);
+    static int substr(char*, int, int, char*, int);
+    static int clean(char[], int, char*);
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+    int hex_to_dec(char[], int);
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
+    static void urldecode(char[], char*);
+    static void print_error(char[], int, char[], int);
+    static void exception(char[], char[], int);
 
-#define RESOURCE_MAX 100
-#define RESOURCE_MAX_MSG "Resource too large!  Aborting..."
+    char* get_resource(char[], int*);
+    char* get_resource_type(char[], int*);
+    char* get_operator(char[], int*);
+    char* get_filter(char[], int*, char*);
+    char* get_conjunctive(char[], int*);
 
-#define RESOURCE_TYPE_MAX 100
-#define RESOURCE_TYPE_MAX_MSG "Resource too large!  Aborting..."
+    static void validate_resource(char[], int, char[], int, const struct Statement*);
+    static void validate_resource_type(char[], int, char[], int, const struct Statement*);
+    static void validate_operator(char[], int, char[], int, const struct Statement*);
+    static void validate_filter(char[], int, char*, char[], int, const struct Statement*);
+    static void validate_conjunctive(char[], int, char[], int, const struct Statement*);
 
-#define OPERATOR_MAX 2
-#define OPERATOR_MAX_MSG "Operator too large!  Aborting..."
-
-#define FILTER_MAX 1000
-#define FILTER_MAX_MSG "Filter too large!  Aborting..."
-
-#define CONJUNCTIVE_MAX 1
-#define CONJUNCTIVE_MAX_MSG "Conjunctive operator too large!  Aborting..."
-
-#define MAX_RESOURCES 100
-
-#define DEFAULT_EXIT 1
-
-
-struct Statement {
-    char* resource;
-    char* type;
-    char* operator;
-    char* filter;
-    char* filter_type;
-    char* conjunctive;
-};
+    static void validate_var(char[], int, char[], int, const struct Statement*);
+    static void validate_string(char[], int, char[], int, const struct Statement*);
+    static void validate_int(char[], int, char[], int, const struct Statement*);
+    static void validate_double(char[], int, char[], int, const struct Statement*);
+    static void validate_list(char[], int, char*, char[], int, const struct Statement*);
+    static void validate_list_string(char[], int, char[], int, const struct Statement*);
+    static void validate_list_double(char[], int, char[], int, const struct Statement*);
+    static void validate_list_int(char[], int, char[], int, const struct Statement*);
+     
+#endif
