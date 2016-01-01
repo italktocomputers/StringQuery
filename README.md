@@ -16,7 +16,11 @@ http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
 
 To compile on Centos 6.6 using GCC 4.4.7: 
 
-    gcc parser.c -lm
+    gcc main.c parser.c translators/sql.c translators/json.c -lm
+    
+To run tests, cd into the /tests directory and run following command:
+
+    gcc main.c ../parser.c test_functions.c resource_tests.c -lm
 
  
 Valid statement syntax: 
@@ -105,6 +109,22 @@ You can also send a URL encoded string to the parser:
 
 This allows you to encode a StringQuery string from a URL and safely pass it to 
 the parser without worrying about command injection.
+
+StringQuery supports the following system variables:
+
+    __fetch_list__
+    __order_list__
+    __order_sort__
+    
+    __fetch_list__ allows you to specify a list of fields you would like returned.
+    __order_list__ allows you to specify a list of fields you would like to order by.
+    __order_sort__ allows you to specify a single sort variable: @desc|@asc.
+
+User.FirstName:String='Andrew'&
+User.LastName:String='Schools'&
+__fetch_list__:@=List(@User.FirstName,@User.LastName,@User.Age)&
+__order_list__:@=List(@User.LastName, @User.FirstName)&
+__order_sort__:@=@DESC
 
 
 Parser Options:
