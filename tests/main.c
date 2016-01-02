@@ -26,13 +26,61 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>  
+#include "../common.h"
 #include "test_functions.h"
-#include "resource_tests.h"
 
 //////////////////////0         1         2         3         4         5         6         7         8         9         
-char* stringQuery1 = "User.FirstName:String='Andrew'&User.LastName:String='Schools'&User.Dept:String=('Engineering','Math')";
+char* stringQuery1 = "User.FirstName='Andrew'&User.LastName='Schools'&User.Dept=('Engineering','Math')";
 //////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
+//////////////////////0         1         2         3         4         5         6         7         8         9         
+char* stringQuery2 = "User.FirstName='Andrew'|User.FirstName='Laura'";
+//////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+//////////////////////0         1         2         3         4         5         6         7         8         9         
+char* stringQuery3 = "User.FirstName='Andrew'";
+//////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+//////////////////////0         1         2         3         4         5         6         7         8         9         
+char* stringQuery4 = "User.FirstName!='Andrew'";
+//////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+//////////////////////0         1         2         3         4         5         6         7         8         9         
+char* stringQuery5 = "User.Age>5";
+//////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+//////////////////////0         1         2         3         4         5         6         7         8         9         
+char* stringQuery6 = "User.Age>=5";
+//////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+//////////////////////0         1         2         3         4         5         6         7         8         9         
+char* stringQuery7 = "User.Age<5.5";
+//////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+//////////////////////0         1         2         3         4         5         6         7         8         9         
+char* stringQuery8 = "User.Age<=5";
+//////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+//////////////////////0         1         2         3         4         5         6         7         8         9         
+char* stringQuery9 = "User.Dept=('Engineering','Math')";
+//////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+///////////////////////0         1         2         3         4         5         6         7         8         9         
+char* stringQuery10 = "User.Dept!=('Engineering','Math')";
+///////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
 int main(int argc, const char* argv[]) {
-    run_resource_tests(stringQuery1);
+    __PREFIX_test_resource(stringQuery3, "User.FirstName");
+    
+    __PREFIX_test_operator(stringQuery3, "=");
+    __PREFIX_test_operator(stringQuery4, "!=");
+    __PREFIX_test_operator(stringQuery5, ">");
+    __PREFIX_test_operator(stringQuery6, ">=");
+    __PREFIX_test_operator(stringQuery7, "<");
+    __PREFIX_test_operator(stringQuery8, "<=");
+    
+    __PREFIX_test_filter(stringQuery3, "'Andrew'");
+    __PREFIX_test_filter(stringQuery6, "5");
+    __PREFIX_test_filter(stringQuery7, "5.5");
+    __PREFIX_test_filter(stringQuery9, "('Engineering','Math')");
 }

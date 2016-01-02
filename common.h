@@ -56,3 +56,7 @@ SOFTWARE.
 #define MAX_RESOURCES 100
 
 #define DEFAULT_EXIT 1
+
+#define __PREFIX sQ
+
+

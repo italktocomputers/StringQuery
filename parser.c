@@ -29,166 +29,127 @@ SOFTWARE.
 #include "common.h"
 #include "parser.h"
 
-char* get_resource(char code[], int* cursor) {
-    int start = *cursor;
-    int tmp_cursor = *cursor;
+char* __PREFIX_get_resource(char code[]) {
+    int found = 0;
+    int cursor = 0;
     
-    // Find the ':' delimiter
-    while (code[tmp_cursor] != '\0') {
-        if (code[tmp_cursor] == ':') {
-            tmp_cursor--;
-            break;
-        } else if (code[tmp_cursor] == '=') {
-            // They forgot to add a type. Even though this is not a valid 
-            // delimiter it will be used as one and I will let the 
-            // validate_resource function determine the validity of the resource 
-            // provided.
-            // Note that I am not doing a tmp_cursor--.  I want to include
-            // the '=' in the resource name so that this code will fail like
-            // it should.
-            break;
-        }
-        
-        tmp_cursor++;
-    }
-    
-    char* p_resource = (char*)malloc(RESOURCE_MAX+1);
-    int length = substr(code, start, tmp_cursor, p_resource, RESOURCE_MAX);
-    
-    if (length == -1) {
-        print_error(code, tmp_cursor, RESOURCE_MAX_MSG, DEFAULT_EXIT);
-    }
-    
-    *cursor = tmp_cursor + 2; // Move cursor to resource type
-    
-    return p_resource;
-}
-
-char* get_resource_type(char code[], int* cursor) {
-    int start = *cursor;
-    int tmp_cursor = *cursor;
-    int ok = 0;
-
-    // Find the delimiter
-    while (code[tmp_cursor] != '\0') {
-        switch (code[tmp_cursor]) {
+    // Find the delimiter.  This will be an operator.
+    while (code[cursor] != '\0') {
+        switch (code[cursor]) {
             case '>' :
             case '<' :
             case '!' :
             case '=' :
-                ok = 1;
-                tmp_cursor--;
+                found = 1;
+                cursor--;
                 break;
-            case '\'' :
-            case '"' :
-                // They did not specify an operator...
-                ok = 1;
-                tmp_cursor--;
-                break;
+            
         }
         
-        if (ok == 1) {
+        if (found == 1) {
             break;
         }
         
-        tmp_cursor++;
+        cursor++;
     }
     
-    char* p_resource_type = (char*)malloc(RESOURCE_TYPE_MAX+1);
+    char* p_resource = (char*)malloc(RESOURCE_MAX+1);
+    substr(code, 0, cursor, p_resource, RESOURCE_MAX);
     
-    int length = substr(code, start, tmp_cursor, p_resource_type, RESOURCE_TYPE_MAX);
-    
-    if (length == -1) {
-        print_error(code, tmp_cursor, RESOURCE_TYPE_MAX_MSG, DEFAULT_EXIT);
-    }
-    
-    *cursor = tmp_cursor + 1; // Move cursor to operator 
-    
-    return p_resource_type;
+    return p_resource;
 }
 
-char* get_operator(char code[], int* cursor) {
-    int start = *cursor;
-    int tmp_cursor = *cursor;
+char* __PREFIX_get_operator(char code[]) {
+    int start = 0;
+    int cursor = 0;
     
-    // Find the delimiter
-    switch (code[tmp_cursor]) {
-        case '>' :
-        case '<' :
-        case '!' :
-            // Delimiter found.
-            if (code[tmp_cursor+1] == '=') {
-                // Operator is either a '>=', '<=' or '!='.  Either way, we 
-                // need to move by one more to fetch the '='.
-                tmp_cursor++;
-            }
-            break;
-        case '=' :
-            // Delimiter found.  It is just a '=' so no need
-            // to move cursor since we are already here.
-            break;
+    // Find the operator.
+    while (code[cursor] != '\0') {
+        switch (code[cursor]) {
+            case '>' :
+            case '<' :
+            case '!' :
+                start = cursor;
+                
+                if (code[cursor+1] == '=') {
+                    // Operator is either a '>=', '<=' or '!='.
+                    cursor++;
+                }
+                break;
+            case '=' :
+                start = cursor;
+                break;
+            
+        }
         
+        if (start > 0) {
+            break;
+        }
+        
+        cursor++;
     }
     
     char* p_operator = (char*)malloc(OPERATOR_MAX+1);
     
-    int length = substr(code, start, tmp_cursor, p_operator, OPERATOR_MAX);
-    
-    if (length == -1) {
-        print_error(code, tmp_cursor, OPERATOR_MAX_MSG, EXIT_INVALID_SYNTAX);
-    }
-    
-    *cursor = tmp_cursor + 1; // Move cursor to filter
+    substr(code, start, cursor, p_operator, OPERATOR_MAX);
     
     return p_operator;
 }  
 
-char* get_filter(char code[], int* cursor, char* type) {
-    int start = *cursor;
-    int tmp_cursor = *cursor;
+char* __PREFIX_get_filter(char code[]) {
+    int start = 0;
+    int cursor = 0;
     int inside_string = 0;
     char quote_type; // remember starting quote
     
-    if (code[tmp_cursor] == '(') {
-        type = "List";
-    } else {
-        type = "Scalar";
-    }
-    
-    while (code[tmp_cursor] != '\0') {
-        if ((code[tmp_cursor] == '&' || code[tmp_cursor] == '|') && inside_string == 0) {
-            tmp_cursor--;
+    while (code[cursor] != '\0') {
+        // We only want to find the staring point once.
+        if (start == 0) {
+            switch (code[cursor]) {
+                case '>' :
+                case '<' :
+                case '!' :
+                case '=' :
+                    // We found the operator
+                    if (code[cursor+1] == '=') {
+                        // Operator is either a '>=', '<=' or '!='.
+                        start = cursor+2;
+                    } else {
+                        start = cursor+1;
+                    }
+                    
+                    break;
+            }
+        }
+        
+        if ((code[cursor] == '&' || code[cursor] == '|') && inside_string == 0) {
+            // Filter ends
+            cursor--;
             break;
         }
         
-        if (code[tmp_cursor] == '\'' || code[tmp_cursor] == '"') {
-           if (inside_string == 1 && quote_type == code[tmp_cursor]) {
+        if (code[cursor] == '\'' || code[cursor] == '"') {
+           if (inside_string == 1 && quote_type == code[cursor]) {
                // We found the ending quote so we are no longer in a string
                inside_string = 0;
            } else {
                // Found a starting quote so we are now in a string
                inside_string = 1;
-               quote_type = code[tmp_cursor];
+               quote_type = code[cursor];
            }
        }
        
-       tmp_cursor++;
+       cursor++;
     }
     
     char* p_filter = (char*)malloc(FILTER_MAX+1);
     
-    int length = substr(code, start, tmp_cursor, p_filter, FILTER_MAX);
-    
-    if (length == -1) {
-        print_error(code, tmp_cursor, FILTER_MAX_MSG, EXIT_INVALID_SYNTAX);
-    }
-    
-    *cursor = tmp_cursor;
+    substr(code, start, cursor, p_filter, FILTER_MAX);
     
     return p_filter;
 }
 
-char* get_conjunctive(char code[], int* cursor) {    
+char* __PREFIX_get_conjunctive(char code[], int* cursor) {    
     char* p_conjunctive = (char*)malloc(OPERATOR_MAX+1);
     
     // Length should always be 1 since we can have either an '&' or an '|'
@@ -765,15 +726,14 @@ int clean(char value[], int length, char* str) {
 int get_statement(char code[], int* cursor, struct Statement* sts[], int* sts_index) {
     struct Statement* pst = (struct Statement*)malloc(sizeof(struct Statement));
     char* type = (char*)malloc(sizeof(char[6]));
-    get_resource(code, cursor);
-    get_resource_type(code, cursor);
-    get_operator(code, cursor);
-    get_filter(code, cursor, type);
+    __PREFIX_get_resource(code);
+    __PREFIX_get_operator(code);
+    __PREFIX_get_filter(code);
     
     int end = is_end(code, cursor);
     
     if (end != 0)
-        get_conjunctive(code, cursor);
+        __PREFIX_get_conjunctive(code, cursor);
     
     sts[(*sts_index)++] = pst;
     

@@ -48,11 +48,10 @@ SOFTWARE.
     static void print_error(char[], int, char[], int);
     static void exception(char[], char[], int);
 
-    char* get_resource(char[], int*);
-    char* get_resource_type(char[], int*);
-    char* get_operator(char[], int*);
-    char* get_filter(char[], int*, char*);
-    char* get_conjunctive(char[], int*);
+    char* __PREFIX_get_resource(char[]);
+    char* __PREFIX_get_operator(char[]);
+    char* __PREFIX_get_filter(char[]);
+    char* __PREFIX_get_conjunctive(char[], int*);
 
     static void validate_resource(char[], int, char[], int, const struct Statement*);
     static void validate_resource_type(char[], int, char[], int, const struct Statement*);

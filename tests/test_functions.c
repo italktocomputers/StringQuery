@@ -25,9 +25,11 @@ SOFTWARE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../common.h"
+#include "../parser.h"
 #include "test_functions.h"
 
-void print_dots(int l) {
+void __PREFIX_print_dots(int l) {
     int i=0;
     int n_dots = NUM_SPACES_TO_RIGHT - l;
     
@@ -36,36 +38,36 @@ void print_dots(int l) {
     }
 }
 
-void pass(char* test_name) {
+void __PREFIX_pass(char* test_name) {
     int l = strlen(test_name);
     
     printf("%s", test_name);
     printf("\033[0;32m");
-    print_dots(l);
+    __PREFIX_print_dots(l);
     printf("\033[0;32m[Passed!]\033[0m\n");
 }
 
-void fail(char* test_name, char* expected, char* actual) {
+void __PREFIX_fail(char* test_name, char* expected, char* actual) {
     int l = strlen(test_name);
     
     printf("%s", test_name);
     printf("\033[0;31m");
-    print_dots(l);
+    __PREFIX_print_dots(l);
     printf("[Failed!]\n");
     printf("Expecting %s but got %s\033[0m\n", expected, actual);
 }
 
-void test_string(char* test_name, char* expected, char* actual) {
+void __PREFIX_test_string(char* test_name, char* expected, char* actual) {
     if (strcmp(expected, actual) == 0) {
-        pass(test_name);
+        __PREFIX_pass(test_name);
     } else {
-        fail(test_name, expected, actual);
+        __PREFIX_fail(test_name, expected, actual);
     }
 }
 
-void test_int(char* test_name, int expected, int actual) {
+void __PREFIX_test_int(char* test_name, int expected, int actual) {
     if (expected == actual) {
-        pass(test_name);
+        __PREFIX_pass(test_name);
     } else {
         char* expected_string;
         expected_string = (char*)malloc(3);
@@ -76,6 +78,21 @@ void test_int(char* test_name, int expected, int actual) {
         sprintf(expected_string, "%i", expected);
         sprintf(actual_string, "%i", actual);
         
-        fail(test_name, expected_string, actual_string);
+        __PREFIX_fail(test_name, expected_string, actual_string);
     }
+}
+
+void __PREFIX_test_resource(char* stringQuery, char* resource) {
+    char* resource2 = __PREFIX_get_resource(stringQuery);
+    __PREFIX_test_string("Get resource", resource, resource2);
+}
+
+void __PREFIX_test_operator(char* stringQuery, char* operator) {
+    char* operator2 = __PREFIX_get_operator(stringQuery);
+    __PREFIX_test_string("Get operator", operator, operator2);
+}
+
+void __PREFIX_test_filter(char* stringQuery, char* filter) {
+    char* filter2 = __PREFIX_get_filter(stringQuery);
+    __PREFIX_test_string("Get filter", filter, filter2);
 }
