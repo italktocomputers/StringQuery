@@ -22,6 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../common.h"
+#include "../validation.h"
+#include "../extraction.h"
+
 #ifndef TEST_FUNCTIONS_H
 #define TEST_FUNCTIONS_H
     #define NUM_SPACES_TO_RIGHT 50
@@ -29,10 +36,19 @@ SOFTWARE.
     void __PREFIX_print_dots(int l);
     void __PREFIX_pass(char* test_name);
     void __PREFIX_fail(char* test_name, char* expected, char* actual);
+    
     void __PREFIX_test_string(char* test_name, char* expected, char* actual);
     void __PREFIX_test_int(char* test_name, int expected, int actual);
     void __PREFIX_test_resource(char* stringQuery, char* resource);
     void __PREFIX_test_operator(char* stringQuery, char* operator);
     void __PREFIX_test_filter(char* stringQuery, char* filter);
+    void __PREFIX_test_conjunctive(char* stringQuery, char* filter);
+    
+    void __PREFIX_test_get_filter_type(char* filter, int expected_code);
+    
+    void __PREFIX_test_validate_resource(char* resource, int expected_code);
+    void __PREFIX_test_validate_operator(char* operator, int expected_code);
+    void __PREFIX_test_validate_conjunctive(char* conj, int expected_code);
+    void __PREFIX_test_validate_var(char* var, int expected_code);
     
 #endif

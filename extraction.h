@@ -22,38 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "common.h"
-#include "extraction.h"
-#include "validation.h"
 #include "library.h"
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef EXTRACTION_H
+#define EXTRACTION_H
 
-    struct Statement {
-        char* resource;
-        char* type;
-        char* operator;
-        char* filter;
-        char* filter_type;
-        char* conjunctive;
-    };
-     
-    static int parse(char[], int*, struct Statement*[], int*);
-    static int get_statement(char[], int*, struct Statement*[], int*);
-    static int is_end(char[], int*);
+    char* __PREFIX_get_resource(char[]);
+    char* __PREFIX_get_operator(char[]);
+    char* __PREFIX_get_filter(char[]);
+    char* __PREFIX_get_conjunctive(char[]);
     
-    static int clean(char[], int, char*);
-
-    
-    static void print_error(char[], int, char[], int);
-    static void exception(char[], char[], int);
-
-    
-    
-    int __PREFIX_get_filter_type(char[]);
-     
 #endif

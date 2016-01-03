@@ -22,38 +22,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "common.h"
-#include "extraction.h"
-#include "validation.h"
-#include "library.h"
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef VALIDATION_H
+#define VALIDATION_H
 
-    struct Statement {
-        char* resource;
-        char* type;
-        char* operator;
-        char* filter;
-        char* filter_type;
-        char* conjunctive;
-    };
-     
-    static int parse(char[], int*, struct Statement*[], int*);
-    static int get_statement(char[], int*, struct Statement*[], int*);
-    static int is_end(char[], int*);
+    int __PREFIX_validate_resource(char[]);
+    int __PREFIX_validate_operator(char[]);
+    int __PREFIX_validate_filter(char[]);
+    int __PREFIX_validate_conjunctive(char[]);
+    int __PREFIX_validate_var(char code[], int* pos);
+    int __PREFIX_validate_string(char[]);
+    int __PREFIX_validate_int(char[]);
+    int __PREFIX_validate_double(char[]);
+    int __PREFIX_validate_list(char[]);
+    int __PREFIX_validate_list_string(char[]);
+    int __PREFIX_validate_list_double(char[]);
+    int __PREFIX_validate_list_int(char[]);
     
-    static int clean(char[], int, char*);
-
-    
-    static void print_error(char[], int, char[], int);
-    static void exception(char[], char[], int);
-
-    
-    
-    int __PREFIX_get_filter_type(char[]);
-     
 #endif

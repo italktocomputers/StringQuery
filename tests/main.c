@@ -69,6 +69,14 @@ char* stringQuery9 = "User.Dept=('Engineering','Math')";
 char* stringQuery10 = "User.Dept!=('Engineering','Math')";
 ///////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
+///////////////////////0         1         2         3         4         5         6         7         8         9         
+char* stringQuery11 = "User.Dept!=('Engineering','Math')&";
+///////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+///////////////////////0         1         2         3         4         5         6         7         8         9         
+char* stringQuery12 = "User.Dept!=('Engineering','Math')|";
+///////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
 int main(int argc, const char* argv[]) {
     __PREFIX_test_resource(stringQuery3, "User.FirstName");
     
@@ -83,4 +91,68 @@ int main(int argc, const char* argv[]) {
     __PREFIX_test_filter(stringQuery6, "5");
     __PREFIX_test_filter(stringQuery7, "5.5");
     __PREFIX_test_filter(stringQuery9, "('Engineering','Math')");
+    
+    __PREFIX_test_conjunctive(stringQuery11, "&");
+    __PREFIX_test_conjunctive(stringQuery12, "|");
+    
+    __PREFIX_test_validate_resource("User.FirstName", NO_ERROR);
+    
+    __PREFIX_test_validate_resource("User..FirstName", ERROR_INVALID_RESOURCE);
+    __PREFIX_test_validate_resource("FirstName", ERROR_INVALID_RESOURCE);
+    __PREFIX_test_validate_resource("", ERROR_INVALID_RESOURCE);
+    
+    __PREFIX_test_validate_resource("FirstName*", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName(", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName)", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName+", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName-", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName'", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName:", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName\"", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName,", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName?", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName\\", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName@", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName>", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName<", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName=", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_resource("FirstName!", ERROR_INVALID_CHR);
+    
+    __PREFIX_test_validate_operator("=", NO_ERROR);
+    __PREFIX_test_validate_operator("!=", NO_ERROR);
+    __PREFIX_test_validate_operator(">", NO_ERROR);
+    __PREFIX_test_validate_operator(">=", NO_ERROR);
+    __PREFIX_test_validate_operator("<", NO_ERROR);
+    __PREFIX_test_validate_operator("<=", NO_ERROR);
+    __PREFIX_test_validate_operator("%", ERROR_INVALID_OPERATOR);
+    
+    __PREFIX_get_filter_type("'Andrew'", FILTER_TYPE_STRING);
+    __PREFIX_get_filter_type("('Andrew', 'Laura')", FILTER_TYPE_LIST);
+    __PREFIX_get_filter_type("22.2", FILTER_TYPE_DOUBLE);
+    __PREFIX_get_filter_type("22", FILTER_TYPE_INT);
+    __PREFIX_get_filter_type("@name", FILTER_TYPE_VAR);
+    
+    __PREFIX_test_validate_conjunctive("&", NO_ERROR);
+    __PREFIX_test_validate_conjunctive("|", NO_ERROR);
+    __PREFIX_test_validate_conjunctive("%", ERROR_INVALID_CONJUNCTIVE);
+    
+    __PREFIX_test_validate_var("FirstName", ERROR_VAR_MUST_START_WITH_IDENTIFIER);   
+    __PREFIX_test_validate_var("@FirstName*", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName(", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName)", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName+", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName-", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName'", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName:", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName\"", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName,", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName?", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName\\", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName>", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName<", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName=", ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName!", ERROR_INVALID_CHR); 
+    __PREFIX_test_validate_var("@FirstName.", ERROR_INVALID_CHR); 
+    __PREFIX_test_validate_var("@FirstName", NO_ERROR); 
+    __PREFIX_test_validate_var("@FirstName@", NO_ERROR);
 }
