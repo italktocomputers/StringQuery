@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "common.h"
@@ -29,17 +30,17 @@ SOFTWARE.
 #ifndef VALIDATION_H
 #define VALIDATION_H
 
-    int __PREFIX_validate_resource(char[]);
-    int __PREFIX_validate_operator(char[]);
-    int __PREFIX_validate_filter(char[]);
-    int __PREFIX_validate_conjunctive(char[]);
+    int __PREFIX_validate_resource(char[], int* pos);
+    int __PREFIX_validate_operator(char[], int* pos);
+    int __PREFIX_validate_filter(char[], int* pos);
+    int __PREFIX_validate_conjunctive(char[], int* pos);
     int __PREFIX_validate_var(char code[], int* pos);
-    int __PREFIX_validate_string(char[]);
-    int __PREFIX_validate_int(char[]);
-    int __PREFIX_validate_double(char[]);
-    int __PREFIX_validate_list(char[]);
-    int __PREFIX_validate_list_string(char[]);
-    int __PREFIX_validate_list_double(char[]);
-    int __PREFIX_validate_list_int(char[]);
+    int __PREFIX_validate_string(char[], int* pos);
+    int __PREFIX_validate_int(char[], int* pos);
+    int __PREFIX_validate_double(char[], int* pos);
+    int __PREFIX_validate_list(char[], int* pos);
+    int __PREFIX_validate_list_string(char[], int* pos);
+    int __PREFIX_validate_list_double(char[], int* pos);
+    int __PREFIX_validate_list_int(char[], int* pos);
     
 #endif

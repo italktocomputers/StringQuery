@@ -117,8 +117,9 @@ void __PREFIX_test_validate_conjunctive(char* conj, int expected_code) {
     __PREFIX_test_int("Validate conjunctive", expected_code, actual_code);
 }
 
-void __PREFIX_test_validate_var(char* var, int expected_code) {
+void __PREFIX_test_validate_var(char* var, int cursor, int expected_code) {
     int pos;
     int actual_code = __PREFIX_validate_var(var, &pos);
     __PREFIX_test_int("Validate var", expected_code, actual_code);
+    __PREFIX_test_int("Validate cursor", cursor, pos);
 }

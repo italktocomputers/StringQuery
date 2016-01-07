@@ -49,6 +49,6 @@ SOFTWARE.
     void __PREFIX_test_validate_resource(char* resource, int expected_code);
     void __PREFIX_test_validate_operator(char* operator, int expected_code);
     void __PREFIX_test_validate_conjunctive(char* conj, int expected_code);
-    void __PREFIX_test_validate_var(char* var, int expected_code);
+    void __PREFIX_test_validate_var(char* var, int cursor, int expected_code);
     
 #endif

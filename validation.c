@@ -24,13 +24,13 @@ SOFTWARE.
 
 #include "validation.h"
 
-int __PREFIX_validate_resource(char value[]) {
+int __PREFIX_validate_resource(char value[], int* pos) {
     int i = 0;
     int period = 0;
     int bad_chr = 0;
     
-    while (value[i] != '\0') {
-        switch (value[i]) {
+    while (value[*pos] != '\0') {
+        switch (value[*pos]) {
             case '&' :
             case '*' :
             case '(' :
@@ -57,7 +57,7 @@ int __PREFIX_validate_resource(char value[]) {
                 break;
         }
         
-        i++;
+        (*pos)++;
     }
     
     int x = strlen(value);
@@ -75,7 +75,7 @@ int __PREFIX_validate_resource(char value[]) {
     return NO_ERROR;
 }
 
-int __PREFIX_validate_operator(char code[]) {
+int __PREFIX_validate_operator(char code[], int* pos) {
     if (strcmp(code, "=") == 0) {
         return NO_ERROR;
     } else if (strcmp(code, "!=") == 0) {
@@ -94,7 +94,7 @@ int __PREFIX_validate_operator(char code[]) {
 }
 
 // We try to infer the type.
-int __PREFIX_get_filter_type(char code[]) {    
+int __PREFIX_get_filter_type(char code[], int* pos) {    
     if (code[0] == '@') {
         return FILTER_TYPE_VAR;
     } else if (code[0] == '(') {
@@ -116,7 +116,7 @@ int __PREFIX_get_filter_type(char code[]) {
     }
 }
 
-int __PREFIX_validate_conjunctive(char code[]) {
+int __PREFIX_validate_conjunctive(char code[], int* pos) {
     if (strcmp(code, "&") == 0 || strcmp(code, "|") == 0) {
        return NO_ERROR;
     }
@@ -125,15 +125,14 @@ int __PREFIX_validate_conjunctive(char code[]) {
 }
 
 int __PREFIX_validate_var(char code[], int* pos) {
-    int i = 0;
+    *pos = 0;
     
     if (code[0] != '@') {
-        *pos = 0;
         return ERROR_VAR_MUST_START_WITH_IDENTIFIER;
     }
     
-    while (code[i] != '\0') {
-        switch (code[i]) {
+    while (code[*pos] != '\0') {
+        switch (code[*pos]) {
             case '&' :
             case '*' :
             case '(' :
@@ -153,17 +152,16 @@ int __PREFIX_validate_var(char code[], int* pos) {
             case '.' :
                 // They cannot use any of these characters in their variable 
                 // name.
-                *pos = i;
                 return ERROR_INVALID_CHR;
         }
         
-        i++;
+        (*pos)++;
     }
     
     return NO_ERROR;
 }
 
-int __PREFIX_validate_string(char code[]) {
+int __PREFIX_validate_string(char code[], int* pos) {
     return 1;
     
     /*
@@ -212,7 +210,7 @@ int __PREFIX_validate_string(char code[]) {
     */
 }
 
-int __PREFIX_validate_list(char code[]) {
+int __PREFIX_validate_list(char code[], int* pos) {
     return 1;
     
     /*
@@ -240,7 +238,7 @@ int __PREFIX_validate_list(char code[]) {
     */
 }
 
-int __PREFIX_validate_list_string(char code[]) {
+int __PREFIX_validate_list_string(char code[], int* pos) {
     return 1;
     
     /*
@@ -267,7 +265,7 @@ int __PREFIX_validate_list_string(char code[]) {
     */
 }
 
-int __PREFIX_validate_list_int(char code[]) {
+int __PREFIX_validate_list_int(char code[], int* pos) {
     return 1;
     
     /*
@@ -294,7 +292,7 @@ int __PREFIX_validate_list_int(char code[]) {
     */
 }
 
-int __PREFIX_validate_list_double(char code[]) {
+int __PREFIX_validate_list_double(char code[], int* pos) {
     return 1;
     
     /*
@@ -321,7 +319,7 @@ int __PREFIX_validate_list_double(char code[]) {
     */
 }
 
-int __PREFIX_validate_int(char code[]) {
+int __PREFIX_validate_int(char code[], int* pos) {
     return 1;
     
     /*
@@ -371,7 +369,7 @@ int __PREFIX_validate_int(char code[]) {
     */
 }
 
-int __PREFIX_validate_double(char code[]) {
+int __PREFIX_validate_double(char code[], int* pos) {
     return 1;
     
     /*
