@@ -25,82 +25,88 @@ SOFTWARE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>  
+#include <assert.h>
 #include "../common.h"
 #include "test_functions.h"
 
-//////////////////////0         1         2         3         4         5         6         7         8         9         
+//////////////////////0         1         2         3         4         5         6         7         8         9
 char* stringQuery1 = "User.FirstName='Andrew'&User.LastName='Schools'&User.Dept=('Engineering','Math')";
 //////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
-//////////////////////0         1         2         3         4         5         6         7         8         9         
+//////////////////////0         1         2         3         4         5         6         7         8         9
 char* stringQuery2 = "User.FirstName='Andrew'|User.FirstName='Laura'";
 //////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
-//////////////////////0         1         2         3         4         5         6         7         8         9         
+//////////////////////0         1         2         3         4         5         6         7         8         9
 char* stringQuery3 = "User.FirstName='Andrew'";
 //////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
-//////////////////////0         1         2         3         4         5         6         7         8         9         
+//////////////////////0         1         2         3         4         5         6         7         8         9
 char* stringQuery4 = "User.FirstName!='Andrew'";
 //////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
-//////////////////////0         1         2         3         4         5         6         7         8         9         
+//////////////////////0         1         2         3         4         5         6         7         8         9
 char* stringQuery5 = "User.Age>5";
 //////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
-//////////////////////0         1         2         3         4         5         6         7         8         9         
+//////////////////////0         1         2         3         4         5         6         7         8         9
 char* stringQuery6 = "User.Age>=5";
 //////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
-//////////////////////0         1         2         3         4         5         6         7         8         9         
+//////////////////////0         1         2         3         4         5         6         7         8         9
 char* stringQuery7 = "User.Age<5.5";
 //////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
-//////////////////////0         1         2         3         4         5         6         7         8         9         
+//////////////////////0         1         2         3         4         5         6         7         8         9
 char* stringQuery8 = "User.Age<=5";
 //////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
-//////////////////////0         1         2         3         4         5         6         7         8         9         
+//////////////////////0         1         2         3         4         5         6         7         8         9
 char* stringQuery9 = "User.Dept=('Engineering','Math')";
 //////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
-///////////////////////0         1         2         3         4         5         6         7         8         9         
+///////////////////////0         1         2         3         4         5         6         7         8         9
 char* stringQuery10 = "User.Dept!=('Engineering','Math')";
 ///////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
-///////////////////////0         1         2         3         4         5         6         7         8         9         
+///////////////////////0         1         2         3         4         5         6         7         8         9
 char* stringQuery11 = "User.Dept!=('Engineering','Math')&";
 ///////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
-///////////////////////0         1         2         3         4         5         6         7         8         9         
+///////////////////////0         1         2         3         4         5         6         7         8         9
 char* stringQuery12 = "User.Dept!=('Engineering','Math')|";
 ///////////////////////01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 
 int main(int argc, const char* argv[]) {
-    __PREFIX_test_resource(stringQuery3, "User.FirstName");
-    
-    __PREFIX_test_operator(stringQuery3, "=");
-    __PREFIX_test_operator(stringQuery4, "!=");
-    __PREFIX_test_operator(stringQuery5, ">");
-    __PREFIX_test_operator(stringQuery6, ">=");
-    __PREFIX_test_operator(stringQuery7, "<");
-    __PREFIX_test_operator(stringQuery8, "<=");
-    
-    __PREFIX_test_filter(stringQuery3, "'Andrew'");
-    __PREFIX_test_filter(stringQuery6, "5");
-    __PREFIX_test_filter(stringQuery7, "5.5");
-    __PREFIX_test_filter(stringQuery9, "('Engineering','Math')");
-    
-    __PREFIX_test_conjunctive(stringQuery11, "&");
-    __PREFIX_test_conjunctive(stringQuery12, "|");
-    
+    __PREFIX_test_get_resource(stringQuery3, "User.FirstName");
+
+    __PREFIX_test_get_operator(stringQuery3, "=");
+    __PREFIX_test_get_operator(stringQuery4, "!=");
+    __PREFIX_test_get_operator(stringQuery5, ">");
+    __PREFIX_test_get_operator(stringQuery6, ">=");
+    __PREFIX_test_get_operator(stringQuery7, "<");
+    __PREFIX_test_get_operator(stringQuery8, "<=");
+
+    __PREFIX_test_get_filter(stringQuery3, "'Andrew'");
+    __PREFIX_test_get_filter(stringQuery6, "5");
+    __PREFIX_test_get_filter(stringQuery7, "5.5");
+    __PREFIX_test_get_filter(stringQuery9, "('Engineering','Math')");
+
+    __PREFIX_test_get_conjunctive(stringQuery11, "&");
+    __PREFIX_test_get_conjunctive(stringQuery12, "|");
+
+    __PREFIX_test_get_filter_type("'Andrew'", FILTER_TYPE_STRING);
+    __PREFIX_test_get_filter_type("('Andrew', 'Laura')", FILTER_TYPE_LIST);
+    __PREFIX_test_get_filter_type("22.2", FILTER_TYPE_DOUBLE);
+    __PREFIX_test_get_filter_type("22", FILTER_TYPE_INT);
+    __PREFIX_test_get_filter_type("@name", FILTER_TYPE_VAR);
+    __PREFIX_test_get_filter_type("null", FILTER_TYPE_NULL);
+    __PREFIX_test_get_filter_type("NULL", FILTER_TYPE_NULL);
+
     __PREFIX_test_validate_resource("User.FirstName", NO_ERROR);
-    
     __PREFIX_test_validate_resource("User..FirstName", ERROR_INVALID_RESOURCE);
     __PREFIX_test_validate_resource("FirstName", ERROR_INVALID_RESOURCE);
     __PREFIX_test_validate_resource("", ERROR_INVALID_RESOURCE);
-    
     __PREFIX_test_validate_resource("FirstName*", ERROR_INVALID_CHR);
     __PREFIX_test_validate_resource("FirstName(", ERROR_INVALID_CHR);
     __PREFIX_test_validate_resource("FirstName)", ERROR_INVALID_CHR);
@@ -117,7 +123,7 @@ int main(int argc, const char* argv[]) {
     __PREFIX_test_validate_resource("FirstName<", ERROR_INVALID_CHR);
     __PREFIX_test_validate_resource("FirstName=", ERROR_INVALID_CHR);
     __PREFIX_test_validate_resource("FirstName!", ERROR_INVALID_CHR);
-    
+
     __PREFIX_test_validate_operator("=", NO_ERROR);
     __PREFIX_test_validate_operator("!=", NO_ERROR);
     __PREFIX_test_validate_operator(">", NO_ERROR);
@@ -125,18 +131,12 @@ int main(int argc, const char* argv[]) {
     __PREFIX_test_validate_operator("<", NO_ERROR);
     __PREFIX_test_validate_operator("<=", NO_ERROR);
     __PREFIX_test_validate_operator("%", ERROR_INVALID_OPERATOR);
-    
-    __PREFIX_get_filter_type("'Andrew'", FILTER_TYPE_STRING);
-    __PREFIX_get_filter_type("('Andrew', 'Laura')", FILTER_TYPE_LIST);
-    __PREFIX_get_filter_type("22.2", FILTER_TYPE_DOUBLE);
-    __PREFIX_get_filter_type("22", FILTER_TYPE_INT);
-    __PREFIX_get_filter_type("@name", FILTER_TYPE_VAR);
-    
+
     __PREFIX_test_validate_conjunctive("&", NO_ERROR);
     __PREFIX_test_validate_conjunctive("|", NO_ERROR);
     __PREFIX_test_validate_conjunctive("%", ERROR_INVALID_CONJUNCTIVE);
-    
-    __PREFIX_test_validate_var("FirstName", 0, ERROR_VAR_MUST_START_WITH_IDENTIFIER);   
+
+    __PREFIX_test_validate_var("FirstName", 0, ERROR_VAR_MUST_START_WITH_IDENTIFIER);
     __PREFIX_test_validate_var("@FirstName*", 10, ERROR_INVALID_CHR);
     __PREFIX_test_validate_var("@FirstName(1", 10, ERROR_INVALID_CHR);
     __PREFIX_test_validate_var("@FirstName)b", 10, ERROR_INVALID_CHR);
@@ -151,8 +151,30 @@ int main(int argc, const char* argv[]) {
     __PREFIX_test_validate_var("@FirstName>", 10, ERROR_INVALID_CHR);
     __PREFIX_test_validate_var("@FirstName<", 10, ERROR_INVALID_CHR);
     __PREFIX_test_validate_var("@FirstName=", 10, ERROR_INVALID_CHR);
-    __PREFIX_test_validate_var("@FirstName!", 10, ERROR_INVALID_CHR); 
-    __PREFIX_test_validate_var("@FirstName.", 10, ERROR_INVALID_CHR); 
-    __PREFIX_test_validate_var("@FirstName", 10, NO_ERROR); 
+    __PREFIX_test_validate_var("@FirstName!", 10, ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName.", 10, ERROR_INVALID_CHR);
+    __PREFIX_test_validate_var("@FirstName", 10, NO_ERROR);
     __PREFIX_test_validate_var("@FirstName@", 11, NO_ERROR);
+
+    __PREFIX_test_validate_string("'Andrew'", 8, NO_ERROR);
+    __PREFIX_test_validate_string("'Andrew\\'s'", 11, NO_ERROR);
+    __PREFIX_test_validate_string("\"Andrew\"", 8, NO_ERROR);
+    __PREFIX_test_validate_string("'!@#$%^&*()_+-={}[]|\\<>?,./:\";'", 31, NO_ERROR);
+    __PREFIX_test_validate_string("Andrew'", 0, ERROR_INVALID_STRING_NO_START);
+    __PREFIX_test_validate_string("'Andrew", 7, ERROR_INVALID_STRING_NO_END);
+    __PREFIX_test_validate_string("'Andrew'Schools", 8, ERROR_INVALID_STRING);
+
+    __PREFIX_test_validate_list("(a,b)", 0, NO_ERROR);
+    __PREFIX_test_validate_list("a", 0, ERROR_INVALID_LIST_NO_START);
+    __PREFIX_test_validate_list("(a", 0, ERROR_INVALID_LIST_NO_END);
+
+    __PREFIX_test_validate_int("1", 1, NO_ERROR);
+    __PREFIX_test_validate_int("-1", 2, NO_ERROR);
+    __PREFIX_test_validate_int("a", 0, ERROR_INVALID_INT);
+    __PREFIX_test_validate_int("1.0", 1, ERROR_INVALID_INT);
+
+    __PREFIX_test_validate_double("1.0", 3, NO_ERROR);
+    __PREFIX_test_validate_double("-1.0", 4, NO_ERROR);
+    __PREFIX_test_validate_double("a", 0, ERROR_INVALID_DOUBLE);
+    __PREFIX_test_validate_double("1", 1, ERROR_INVALID_DOUBLE);
 }

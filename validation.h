@@ -39,8 +39,5 @@ SOFTWARE.
     int __PREFIX_validate_int(char[], int* pos);
     int __PREFIX_validate_double(char[], int* pos);
     int __PREFIX_validate_list(char[], int* pos);
-    int __PREFIX_validate_list_string(char[], int* pos);
-    int __PREFIX_validate_list_double(char[], int* pos);
-    int __PREFIX_validate_list_int(char[], int* pos);
-    
+
 #endif
