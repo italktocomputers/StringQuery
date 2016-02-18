@@ -41,8 +41,8 @@ SOFTWARE.
 #define RESOURCE_MAX 100
 #define RESOURCE_MAX_MSG "Resource too large!  Aborting..."
 
-#define RESOURCE_TYPE_MAX 100
-#define RESOURCE_TYPE_MAX_MSG "Resource too large!  Aborting..."
+#define RESOURCE_TYPE_MAX 10
+#define RESOURCE_TYPE_MAX_MSG "Resource type too large!  Aborting..."
 
 #define OPERATOR_MAX 2
 #define OPERATOR_MAX_MSG "Operator too large!  Aborting..."
@@ -82,3 +82,9 @@ SOFTWARE.
 #define ERROR_INVALID_LIST_NO_END 112
 #define ERROR_INVALID_INT 113
 #define ERROR_INVALID_DOUBLE 114
+#define ERROR_INVALID_YEAR 115
+#define ERROR_INVALID_MONTH 116
+#define ERROR_INVALID_DAY 117
+#define ERROR_INVALID_HOUR 118
+#define ERROR_INVALID_MINUTE 119
+#define ERROR_INVALID_SECOND 120

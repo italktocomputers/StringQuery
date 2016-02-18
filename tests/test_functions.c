@@ -79,80 +79,122 @@ void __PREFIX_test_int(char* test_name, int expected, int actual) {
     }
 }
 
-void __PREFIX_test_get_resource(char* stringQuery, char* resource) {
+void __PREFIX_test_get_resource(char* test_name, char* stringQuery, char* resource) {
     char* resource2 = __PREFIX_get_resource(stringQuery);
-    __PREFIX_test_string("Get resource", resource, resource2);
+    __PREFIX_test_string(test_name, resource, resource2);
 }
 
-void __PREFIX_test_get_operator(char* stringQuery, char* operator) {
+void __PREFIX_test_get_resource_type(char* test_name, char* stringQuery, char* resource) {
+    char* resource2 = __PREFIX_get_resource_type(stringQuery);
+    __PREFIX_test_string(test_name, resource, resource2);
+}
+
+void __PREFIX_test_get_operator(char* test_name, char* stringQuery, char* operator) {
     char* operator2 = __PREFIX_get_operator(stringQuery);
-    __PREFIX_test_string("Get operator", operator, operator2);
+    __PREFIX_test_string(test_name, operator, operator2);
 }
 
-void __PREFIX_test_get_filter(char* stringQuery, char* filter) {
+void __PREFIX_test_get_filter(char* test_name, char* stringQuery, char* filter) {
     char* filter2 = __PREFIX_get_filter(stringQuery);
-    __PREFIX_test_string("Get filter", filter, filter2);
+    __PREFIX_test_string(test_name, filter, filter2);
 }
 
-void __PREFIX_test_get_conjunctive(char* stringQuery, char* conjunctive) {
+void __PREFIX_test_get_conjunctive(char* test_name, char* stringQuery, char* conjunctive) {
     char* conjunctive2 = __PREFIX_get_conjunctive(stringQuery);
-    __PREFIX_test_string("Get conjunctive", conjunctive, conjunctive2);
+    __PREFIX_test_string(test_name, conjunctive, conjunctive2);
 }
 
-void __PREFIX_test_get_filter_type(char* filter, int expected_code) {
-    int actual_code = __PREFIX_get_filter_type(filter);
-    __PREFIX_test_int("Get filter type", expected_code, actual_code);
+void __PREFIX_test_validate_resource(char* test_name, char* resource, int expected_code) {
+    int actual_code = __PREFIX_validate_resource(resource);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
 }
 
-void __PREFIX_test_validate_resource(char* resource, int expected_code) {
-    int pos;
-    int actual_code = __PREFIX_validate_resource(resource, &pos);
-    __PREFIX_test_int("Validate resource", expected_code, actual_code);
+void __PREFIX_test_validate_operator(char* test_name, char* operator, int expected_code) {
+    int actual_code = __PREFIX_validate_operator(operator);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
 }
 
-void __PREFIX_test_validate_operator(char* operator, int expected_code) {
-    int pos;
-    int actual_code = __PREFIX_validate_operator(operator, &pos);
-    __PREFIX_test_int("Validate operator", expected_code, actual_code);
+void __PREFIX_test_validate_conjunctive(char* test_name, char* conj, int expected_code) {
+    int actual_code = __PREFIX_validate_conjunctive(conj);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
 }
 
-void __PREFIX_test_validate_conjunctive(char* conj, int expected_code) {
-    int pos;
-    int actual_code = __PREFIX_validate_conjunctive(conj, &pos);
-    __PREFIX_test_int("Validate conjunctive", expected_code, actual_code);
+void __PREFIX_test_validate_var(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_var(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
 }
 
-void __PREFIX_test_validate_var(char* var, int cursor, int expected_code) {
-    int pos;
-    int actual_code = __PREFIX_validate_var(var, &pos);
-    __PREFIX_test_int("Validate var", expected_code, actual_code);
-    __PREFIX_test_int("Validate cursor", cursor, pos);
+void __PREFIX_test_validate_string(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_string(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
 }
 
-void __PREFIX_test_validate_string(char* var, int cursor, int expected_code) {
-    int pos;
-    int actual_code = __PREFIX_validate_string(var, &pos);
-    __PREFIX_test_int("Validate string", expected_code, actual_code);
-    __PREFIX_test_int("Validate cursor", cursor, pos);
+void __PREFIX_test_validate_list(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_list(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
 }
 
-void __PREFIX_test_validate_list(char* var, int cursor, int expected_code) {
-    int pos;
-    int actual_code = __PREFIX_validate_list(var, &pos);
-    __PREFIX_test_int("Validate list", expected_code, actual_code);
-    __PREFIX_test_int("Validate cursor", cursor, pos);
+void __PREFIX_test_validate_int(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_int(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
 }
 
-void __PREFIX_test_validate_int(char* var, int cursor, int expected_code) {
-    int pos;
-    int actual_code = __PREFIX_validate_int(var, &pos);
-    __PREFIX_test_int("Validate int", expected_code, actual_code);
-    __PREFIX_test_int("Validate cursor", cursor, pos);
+void __PREFIX_test_validate_int8_signed(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_int8_signed(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
 }
 
-void __PREFIX_test_validate_double(char* var, int cursor, int expected_code) {
-    int pos;
-    int actual_code = __PREFIX_validate_double(var, &pos);
-    __PREFIX_test_int("Validate double", expected_code, actual_code);
-    __PREFIX_test_int("Validate cursor", cursor, pos);
+void __PREFIX_test_validate_int8(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_int8(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
+}
+
+void __PREFIX_test_validate_int16_signed(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_int16_signed(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
+}
+
+void __PREFIX_test_validate_int16(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_int16(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
+}
+
+void __PREFIX_test_validate_int24_signed(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_int24_signed(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
+}
+
+void __PREFIX_test_validate_int24(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_int24(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
+}
+
+void __PREFIX_test_validate_int32_signed(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_int32_signed(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
+}
+
+void __PREFIX_test_validate_int32(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_int32(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
+}
+
+void __PREFIX_test_validate_int64_signed(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_int64_signed(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
+}
+
+void __PREFIX_test_validate_int64(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_int64(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
+}
+
+void __PREFIX_test_validate_double(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_double(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
+}
+
+void __PREFIX_test_validate_datetime(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_datetime(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
 }

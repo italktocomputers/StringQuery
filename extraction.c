@@ -1,23 +1,16 @@
 #include "extraction.h"
 
+//
+// Each extraction function works on a per statement basis.
+//
+
 char* __PREFIX_get_resource(char code[]) {
-    int found = 0;
     int cursor = 0;
 
     // Find the delimiter.  This will be an operator.
     while (code[cursor] != '\0') {
-        switch (code[cursor]) {
-            case '>' :
-            case '<' :
-            case '!' :
-            case '=' :
-                found = 1;
-                cursor--;
-                break;
-
-        }
-
-        if (found == 1) {
+        if (code[cursor] == ':') {
+            cursor--;
             break;
         }
 
@@ -28,6 +21,39 @@ char* __PREFIX_get_resource(char code[]) {
     __PREFIX_substr(code, 0, cursor, p_resource, RESOURCE_MAX);
 
     return p_resource;
+}
+
+char* __PREFIX_get_resource_type(char code[]) {
+    int found = 0;
+    int cursor = 0;
+    int start = 0;
+
+    // Find the delimiters.
+    while (code[cursor] != '\0') {
+        switch (code[cursor]) {
+            case ':' :
+                start = cursor+1;
+                break;
+            case '>' :
+            case '<' :
+            case '!' :
+            case '=' :
+                found = 1;
+                cursor--;
+                break;
+
+        }
+
+        if (found == 1)
+            break;
+
+        cursor++;
+    }
+
+    char* p_resource_type = (char*)malloc(RESOURCE_TYPE_MAX+1);
+    __PREFIX_substr(code, start, cursor, p_resource_type, RESOURCE_TYPE_MAX);
+
+    return p_resource_type;
 }
 
 char* __PREFIX_get_operator(char code[]) {
@@ -127,29 +153,4 @@ char* __PREFIX_get_conjunctive(char code[]) {
     __PREFIX_substr(code, length-1, length-1, p_conjunctive, OPERATOR_MAX);
 
     return p_conjunctive;
-}
-
-// We try to infer the type.
-int __PREFIX_get_filter_type(char code[]) {
-    if (code[0] == '@') {
-        return FILTER_TYPE_VAR;
-    } else if (code[0] == '(') {
-        return FILTER_TYPE_LIST;
-    } else if (code[0] == '\'' || code[0] == '"') {
-        return FILTER_TYPE_STRING;
-    } else if (strcmp(code, "NULL") == 0 || strcmp(code, "null") == 0) {
-        return FILTER_TYPE_NULL;
-    } else {
-        // Some sort of number I guess
-        int i = 0;
-        while (code[i] != '\0') {
-            if (code[i] == '.') {
-                return FILTER_TYPE_DOUBLE;
-            }
-
-            i++;
-        }
-
-        return FILTER_TYPE_INT;
-    }
 }

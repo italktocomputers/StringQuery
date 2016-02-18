@@ -16,7 +16,7 @@ http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
 
 To compile using GCC:
 
-    gcc main.c parser.c translators/sql.c translators/json.c -lm
+    gcc main.c parser.c translators/sql.c translators/json.c validation.c extraction.c library.c -lm
 
 To run tests, cd into the /tests directory and run following command:
 
@@ -25,7 +25,7 @@ To run tests, cd into the /tests directory and run following command:
 
 Valid statement syntax:
 
-    Resource.Entity Operator Filter
+    Resource:Type Operator Filter
 
 Resource.Entity specifies the Resource and Entity to apply the filter against.  
 In a relational database this would be a table and field name.
@@ -42,18 +42,28 @@ The following operators are supported:
 Filters can be any of the supported types or a collection of types known as
 a List.  Example comparing Entity against a single value:
 
-    User.FirstName='Andrew'
+    User.FirstName:String='Andrew'
 
 The following data types are supported:
 
-        String
-        Int
-        Double
-        NULL
-        @
+    String
+    Int8
+    uInt8
+    Int16
+    uInt16
+    Int24
+    uInt24
+    Int32
+    uInt32
+    Int64
+    uInt64
+    Double
+    DateTime
+    NULL
+    @
 
 The last type is a variable which tells the parser you are specifying a
-Resource.Entity.  This data type is used when performing a simple join.
+Resource.  This data type is used when performing a simple joins.
 
 You can concatenate multiple statements by using one of the following conjunctive
 operators:
@@ -63,15 +73,13 @@ operators:
 
 If I want to search for multiple names:
 
-    User.FirstName='Andrew'|User.FirstName='Doug'
+    User.FirstName:String='Andrew'|User.FirstName:String='Doug'
 
 Which can be shortened by using a List:
 
-    User.FirstName=('Andrew','Doug')
+    User.FirstName:String=('Andrew','Doug')
 
-Each item in a List is separated by a ','.
-
-Valid List syntax:
+Each item in a List is separated by a ','.  Valid List syntax:
 
      (value1[,value2,...])
 
@@ -80,21 +88,22 @@ with the following entities:
 
     Person Resource with the following entities:
 
-    Id
-    FirstName
-    LastName
+    Person.Id
+    Person.FirstName
+    Person.LastName
 
     Student Resource with the following entities:
 
-    Id
+    Student.Id
     Person.Id
-    Major
+    Student.Major
 
 Using the query below, we can join Person and Student on PersonId.
 
-    Person.FirstName='Andrew'&Person.LastName='Schools'&Student.PersonId=@Person.Id
+    Person.FirstName:String='Andrew'&Person.LastName:String='Schools'&Student.PersonId:@=Person.Id
 
 Exporting to SQL will output:
+
     SELECT
       Person.*
       ,Student.*
@@ -102,6 +111,15 @@ Exporting to SQL will output:
     WHERE Person.FirstName = 'Andrew'
     AND Person.LastName = 'Schools'
     AND Student.PersonId = Person.Id
+
+You can also search for NULL values:
+
+    Person.Dept:String=NULL
+
+Or by DateTime which uses UTC:
+
+    Person.CreatedDate:DateTime=2016-01-01 00:00:00
+
 
 You can also send a URL encoded string to the parser:
 
@@ -111,11 +129,12 @@ This allows you to encode a StringQuery string from a URL and safely pass it to
 the parser without worrying about command injection.
 
 StringQuery supports the following system variables:
+
     __fetch: allows you to specify a list of fields you would like returned.
     __order: allows you to specify a list of fields you would like to order by.
     __by: allows you to specify a single sort variable: @desc|@asc.
 
-User.FirstName='Andrew'&User.LastName='Schools'&__fetch=(@User.FirstName, @User.LastName, @User.Age) &__order=(@User.LastName, @User.FirstName)&__by=@desc
+    User.FirstName:String='Andrew'&User.LastName:String='Schools'&__fetch:@=(User.FirstName, User.LastName, User.Age)&__order:@=(User.LastName, User.FirstName)&__by:@=desc
 
 
 Parser Options:

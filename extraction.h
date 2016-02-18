@@ -31,9 +31,9 @@ SOFTWARE.
 #define EXTRACTION_H
 
     char* __PREFIX_get_resource(char[]);
+    char* __PREFIX_get_resource_type(char[]);
     char* __PREFIX_get_operator(char[]);
     char* __PREFIX_get_filter(char[]);
     char* __PREFIX_get_conjunctive(char[]);
-    int __PREFIX_get_filter_type(char code[]);
 
 #endif
