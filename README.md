@@ -1,7 +1,7 @@
 StringQuery v 0.1
 
 
-A little query language.
+A little query language that transcompiles to SQL.
 
 
 WARNING: THIS SOFTWARE IS IN ALPHA AND SHOULD NOT BE USED IN PRODUCTION.  I HAVE
