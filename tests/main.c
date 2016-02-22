@@ -83,6 +83,17 @@ char* stringQuery13 = "User.CreatedDate:DateTime=2016-01-02 03:04:05";
 
 
 int main(int argc, const char* argv[]) {
+    char* expected[3];
+    char* statement1 = "User.FirstName:String='Andrew'";
+    char* statement2 = "User.LastName:String='Schools'";
+    char* statement3 = "User.Dept:String=('Engineering','Math')";
+
+    expected[0] = statement1;
+    expected[1] = statement2;
+    expected[2] = statement3;
+
+    __PREFIX_test_get_statements("Test get_statements", stringQuery1, expected, 3);
+
     __PREFIX_test_get_resource("Test get_resource valid", stringQuery3, "User.FirstName");
 
     __PREFIX_test_get_resource_type("Test get_resource_type", stringQuery12, "String");
@@ -226,6 +237,23 @@ int main(int argc, const char* argv[]) {
     __PREFIX_test_validate_double("Test validate_double valid", "-1.0", NO_ERROR);
     __PREFIX_test_validate_double("Test validate_double invalid", "a", ERROR_INVALID_DOUBLE);
     __PREFIX_test_validate_double("Test validate_double invalid", "1", ERROR_INVALID_DOUBLE);
+
+    __PREFIX_test_validate_date("Test validate_date valid", "2016-02-15", NO_ERROR);
+    __PREFIX_test_validate_date("Test validate_date invalid date", "blah", ERROR_INVALID_DATE);
+    __PREFIX_test_validate_date("Test validate_date invalid year bad chr", "20l6-13-15", ERROR_INVALID_YEAR);
+    __PREFIX_test_validate_date("Test validate_date invalid month too high", "2016-13-15", ERROR_INVALID_MONTH);
+    __PREFIX_test_validate_date("Test validate_date invalid day too high", "2016-02-32", ERROR_INVALID_DAY);
+    __PREFIX_test_validate_date("Test validate_date invalid month bad chr", "2016-l3-15", ERROR_INVALID_MONTH);
+    __PREFIX_test_validate_date("Test validate_date invalid day bad chr", "2016-02-3l", ERROR_INVALID_DAY);
+
+    __PREFIX_test_validate_time("Test validate_time valid", "12:01:02", NO_ERROR);
+    __PREFIX_test_validate_time("Test validate_time invalid time", "blah", ERROR_INVALID_TIME);
+    __PREFIX_test_validate_time("Test validate_time invalid hour too high", "24:01:02", ERROR_INVALID_HOUR);
+    __PREFIX_test_validate_time("Test validate_time invalid minute too high", "12:61:02", ERROR_INVALID_MINUTE);
+    __PREFIX_test_validate_time("Test validate_time invalid second too high", "12:01:61", ERROR_INVALID_SECOND);
+    __PREFIX_test_validate_time("Test validate_time invalid hour bad chr", "l2:01:02", ERROR_INVALID_HOUR);
+    __PREFIX_test_validate_time("Test validate_time invalid minute bad chr", "12:0l:02", ERROR_INVALID_MINUTE);
+    __PREFIX_test_validate_time("Test validate_time invalid second bad chr", "12:01:0l", ERROR_INVALID_SECOND);
 
     __PREFIX_test_validate_datetime("Test validate_datetime valid", "2016-02-15 01:02:03", NO_ERROR);
     __PREFIX_test_validate_datetime("Test validate_datetime invalid month", "2016-13-15 01:02:03", ERROR_INVALID_MONTH);

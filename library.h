@@ -22,9 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
 #include "common.h"
 
 #ifndef LIBRARY_H
@@ -33,5 +30,5 @@ SOFTWARE.
     int __PREFIX_substr(char*, int, int, char*, int);
     int __PREFIX_hex_to_dec(char[], int);
     void __PREFIX_urldecode(char[], char*);
-    
+
 #endif

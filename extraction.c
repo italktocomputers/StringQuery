@@ -1,7 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "common.h"
+#include "library.h"
 #include "extraction.h"
 
+char** __PREFIX_get_statements(char code[]) {
+    int i = 0;
+    int x = 0;
+    int cursor = 0;
+    int inside_string = 0;
+    char quote_type; // remember starting quote
+    char** statements = (char**)malloc(sizeof(char*)*10);
+
+    char buffer[STATEMENT_MAX_LENGTH];
+
+    // Find the delimiter.  This will be an operator.
+    while (1) {
+        if (code[cursor] == '\'' || code[cursor] == '"') {
+            if (inside_string == 1 && quote_type == code[cursor]) {
+                // We found the ending quote so we are no longer in a string
+                inside_string = 0;
+            } else {
+                // Found a starting quote so we are now in a string
+                inside_string = 1;
+                quote_type = code[cursor];
+            }
+        }
+
+        if ((code[cursor] == '&' || code[cursor] == '|' || code[cursor] == '\0') && inside_string == 0) {
+            // Statement found so move from character buffer to array.
+            buffer[i] = '\0';
+
+            char* p = (char*)malloc(strlen(buffer));
+            strcpy(p, buffer);
+
+            statements[x++] = p;
+
+            i = 0;
+        } else {
+            // Add character to character buffer.
+            buffer[i++] = code[cursor];
+        }
+
+        if (code[cursor] == '\0')
+            break;
+
+        cursor++;
+    }
+
+    return statements;
+}
+
 //
-// Each extraction function works on a per statement basis.
+// Each extraction function except for the get_statements function works on a per
+// statement basis.
 //
 
 char* __PREFIX_get_resource(char code[]) {

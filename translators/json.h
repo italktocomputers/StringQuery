@@ -22,11 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "../parser.h"
+#include "../common.h"
 
 #ifndef JSON_H
 #define JSON_H
 
-    void toJSON(struct Statement* sts[], int sts_index);
-    
+    void __PREFIX_toJSON(struct Statement* sts[], int sts_index);
+
 #endif

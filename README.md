@@ -9,11 +9,6 @@ ONLY COMPILED USING GCC ON CENTOS 6.6 & MAC OS X 10.11.2. IF YOU ARE ACCEPTING
 CODE FROM A URL IT SHOULD BE ENCODED USING THE APPLICATION/X-WWW-FORM-URLENCODED
 FORMAT.  NOT DOING SO CAN LEAD TO COMMAND INJECTION.  
 
-
-More information on this encoding:
-http://www.w3.org/TR/html401/interact/forms.html#h-17.13.4.1
-
-
 To compile using GCC:
 
     gcc main.c parser.c translators/sql.c translators/json.c validation.c extraction.c library.c -lm
@@ -58,12 +53,14 @@ The following data types are supported:
     Int64
     uInt64
     Double
+    Date
+    Time
     DateTime
     NULL
     @
 
 The last type is a variable which tells the parser you are specifying a
-Resource.  This data type is used when performing a simple joins.
+Resource.Entity.  This data type is used when performing a simple joins.
 
 You can concatenate multiple statements by using one of the following conjunctive
 operators:
@@ -86,13 +83,13 @@ Each item in a List is separated by a ','.  Valid List syntax:
 StringQuery supports simple JOINS.  Let's say we have the following resources
 with the following entities:
 
-    Person Resource with the following entities:
+    Person Resource:
 
     Person.Id
     Person.FirstName
     Person.LastName
 
-    Student Resource with the following entities:
+    Student Resource:
 
     Student.Id
     Person.Id

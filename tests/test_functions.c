@@ -22,7 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "test_functions.h"
+#include "../common.h"
+#include "../validation.h"
+#include "../extraction.h"
 
 void __PREFIX_print_dots(int l) {
     int i=0;
@@ -77,6 +83,23 @@ void __PREFIX_test_int(char* test_name, int expected, int actual) {
 
         __PREFIX_fail(test_name, expected_string, actual_string);
     }
+}
+
+void __PREFIX_test_char_pointer_array(char* test_name, char** expected, int length, char** actual) {
+    int i = 0;
+
+    for (; i<length; i++) {
+        if (strcmp(expected[i], actual[i]) != 0) {
+            __PREFIX_fail(test_name, expected[i], actual[i]);
+        }
+    }
+
+    __PREFIX_pass(test_name);
+}
+
+void __PREFIX_test_get_statements(char* test_name, char* stringQuery, char** expected, int length) {
+    char** actual = __PREFIX_get_statements(stringQuery);
+    __PREFIX_test_char_pointer_array(test_name, expected, length, actual);
 }
 
 void __PREFIX_test_get_resource(char* test_name, char* stringQuery, char* resource) {
@@ -191,6 +214,16 @@ void __PREFIX_test_validate_int64(char* test_name, char* var, int expected_code)
 
 void __PREFIX_test_validate_double(char* test_name, char* var, int expected_code) {
     int actual_code = __PREFIX_validate_double(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
+}
+
+void __PREFIX_test_validate_date(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_date(var);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
+}
+
+void __PREFIX_test_validate_time(char* test_name, char* var, int expected_code) {
+    int actual_code = __PREFIX_validate_time(var);
     __PREFIX_test_int(test_name, expected_code, actual_code);
 }
 

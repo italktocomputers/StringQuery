@@ -22,12 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "../common.h"
-#include "../validation.h"
-#include "../extraction.h"
 
 #ifndef TEST_FUNCTIONS_H
 #define TEST_FUNCTIONS_H
@@ -37,6 +32,7 @@ SOFTWARE.
     void __PREFIX_pass(char* test_name);
     void __PREFIX_fail(char* test_name, char* expected, char* actual);
 
+    void __PREFIX_test_get_statements(char* test_name, char* stringQuery, char** expected, int length);
     void __PREFIX_test_get_resource(char* test_name, char* stringQuery, char* resource);
     void __PREFIX_test_get_resource_type(char* test_name, char* stringQuery, char* resource);
     void __PREFIX_test_get_operator(char* test_name, char* stringQuery, char* operator);
@@ -61,6 +57,8 @@ SOFTWARE.
     void __PREFIX_test_validate_int64_signed(char* test_name, char* var, int expected_code);
     void __PREFIX_test_validate_int64(char* test_name, char* var, int expected_code);
     void __PREFIX_test_validate_double(char* test_name, char* var, int expected_code);
+    void __PREFIX_test_validate_date(char* test_name, char* var, int expected_code);
+    void __PREFIX_test_validate_time(char* test_name, char* var, int expected_code);
     void __PREFIX_test_validate_datetime(char* test_name, char* var, int expected_code);
 
 #endif

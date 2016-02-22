@@ -22,7 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "validation.h"
+#include "library.h"
 
 //
 // A resource must be in the following format: String.String
@@ -374,9 +378,6 @@ int __PREFIX_validate_int32(char code[]) {
 
 //
 // Acceptable range of values: -9223372036854775808 to 9223372036854775807
-// NOTE: At this time I do NOT see a need to use this function.  If I specify
-// a number less than the min, or a number larger than the max, stroll will
-// only return a valid 64 bit signed integer.
 //
 int __PREFIX_validate_int64_signed(char code[]) {
     char *ptr;
@@ -390,9 +391,6 @@ int __PREFIX_validate_int64_signed(char code[]) {
 
 //
 // Acceptable range of values: 0 to 18446744073709551615
-// NOTE: At this time I do NOT see a need to use this function.  If I specify
-// a number less than the min, or a number larger than the max, stroull will
-// only return a valid 64 bit signed integer.
 //
 int __PREFIX_validate_int64(char code[]) {
     char *ptr;
@@ -452,9 +450,12 @@ int __PREFIX_validate_double(char code[]) {
 }
 
 //
-// DateTime should be in the following format: YYYY-MM-DD HH:MM:SS
+// Date should be in the following format: YYYY-MM-DD
 //
-int __PREFIX_validate_datetime(char code[]) {
+int __PREFIX_validate_date(char code[]) {
+    if (strlen(code) != 10)
+        return ERROR_INVALID_DATE;
+
     int pos = 0;
     int i = 0;
     char buffer[4];
@@ -462,62 +463,99 @@ int __PREFIX_validate_datetime(char code[]) {
     char year[5];
     char month[3];
     char day[3];
+
+    char* yearJunk;
+    char* monthJunk;
+    char* dayJunk;
+
+    do {
+        buffer[i++] = code[pos];
+
+        if (pos == 3) {
+            buffer[i] = '\0';
+            strcpy(year, buffer);
+            i = 0;
+            pos++; // skip '-'
+        } else if (pos == 6) {
+            buffer[i] = '\0';
+            strcpy(month, buffer);
+            i = 0 ;
+            pos++; // skip '-'
+        } else if (pos == 9) {
+            buffer[i] = '\0';
+            strcpy(day, buffer);
+        }
+    } while (code[pos++] != '\0');
+
+    int iyear = strtol(year, &yearJunk, 10);
+    int imonth = strtol(month, &monthJunk, 10);
+    int iday = strtol(day, &dayJunk, 10);
+
+    if (strlen(yearJunk) > 0) {
+        return ERROR_INVALID_YEAR;
+    } else if (strlen(monthJunk) > 0) {
+        return ERROR_INVALID_MONTH;
+    } else if (strlen(dayJunk) > 0) {
+        return ERROR_INVALID_DAY;
+    } else if (iyear < 0 || iyear > 9999) {
+        return ERROR_INVALID_YEAR;
+    } else if (imonth < 1 || imonth > 12) {
+        return ERROR_INVALID_MONTH;
+    } else if (iday < 1 || iday > 31) {
+        return ERROR_INVALID_DAY;
+    }
+
+    return NO_ERROR;
+}
+
+//
+// Time should be in the following format: HH:MM:SS
+//
+int __PREFIX_validate_time(char code[]) {
+    if (strlen(code) != 8)
+        return ERROR_INVALID_TIME;
+
+    int pos = 0;
+    int i = 0;
+    char buffer[4];
+
     char hour[3];
     char minute[3];
     char second[3];
 
-    while (code[pos] != '\0') {
-        if (pos == 4) {
-            buffer[i] = '\0';
-            strcpy(year, buffer);
-            i = 0;
-        } else if (pos == 7) {
-            buffer[i] = '\0';
-            strcpy(month, buffer);
-            i = 0 ;
-        } else if (pos == 10) {
-            buffer[i] = '\0';
-            strcpy(day, buffer);
-            i = 0 ;
-        } else if (pos == 13) {
+    char* hourJunk;
+    char* minuteJunk;
+    char* secondJunk;
+
+    do {
+        buffer[i++] = code[pos];
+
+        if (pos == 1) {
             buffer[i] = '\0';
             strcpy(hour, buffer);
-            i = 0 ;
-        } else if (pos == 16) {
+            i = 0;
+            pos++; // skip ':'
+        } else if (pos == 4) {
             buffer[i] = '\0';
             strcpy(minute, buffer);
             i = 0 ;
+            pos++; // skip ':'
+        } else if (pos == 7) {
+            buffer[i] = '\0';
+            strcpy(second, buffer);
         }
+    } while (code[pos++] != '\0');
 
-        // Skip any '-' and the ':'
-        switch (pos) {
-            case 4:
-            case 7:
-            case 10:
-            case 13:
-            case 16:
-                break;
-            default:
-                buffer[i++] = code[pos];
-        }
+    int ihour = strtol(hour, &hourJunk, 10);
+    int iminute = strtol(minute, &minuteJunk, 10);
+    int isecond = strtol(second, &secondJunk, 10);
 
-        pos++;
-    }
-
-    buffer[i] = '\0';
-    strcpy(second, buffer);
-
-    int iyear = atoi(year);
-    int imonth = atoi(month);
-    int iday = atoi(day);
-    int ihour = atoi(hour);
-    int iminute = atoi(minute);
-    int isecond = atoi(second);
-
-    if (imonth < 1 || imonth > 12) {
-        return ERROR_INVALID_MONTH;
-    } else if (iday < 1 || iday > 31) {
-        return ERROR_INVALID_DAY;
+    if (strlen(hourJunk) > 0) {
+        return ERROR_INVALID_HOUR;
+    } else if (strlen(minuteJunk) > 0) {
+        return ERROR_INVALID_MINUTE;
+    } else if (strlen(secondJunk) > 0) {
+        return ERROR_INVALID_SECOND;
     } else if (ihour > 23) {
         return ERROR_INVALID_HOUR;
     } else if (iminute > 60) {
@@ -525,6 +563,29 @@ int __PREFIX_validate_datetime(char code[]) {
     } else if (isecond > 60) {
         return ERROR_INVALID_SECOND;
     }
+
+    return NO_ERROR;
+}
+
+//
+// DateTime should be in the following format: YYYY-MM-DD HH:MM:SS
+//
+int __PREFIX_validate_datetime(char code[]) {
+    char* date = (char*)malloc(11);
+    char* time = (char*)malloc(9);
+
+    __PREFIX_substr(code, 0, 9, date, 11);
+    __PREFIX_substr(code, 11, 18, time, 9);
+
+    int dateVal = __PREFIX_validate_date(date);
+
+    if (dateVal != NO_ERROR)
+        return dateVal;
+
+    int timeVal = __PREFIX_validate_time(time);
+
+    if (timeVal != NO_ERROR)
+        return timeVal;
 
     return NO_ERROR;
 }

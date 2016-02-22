@@ -22,9 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "common.h"
 
 #ifndef VALIDATION_H
@@ -49,6 +46,8 @@ SOFTWARE.
     int __PREFIX_validate_int64_signed(char[]);
     int __PREFIX_validate_double(char[]);
     int __PREFIX_validate_list(char[]);
+    int __PREFIX_validate_date(char[]);
+    int __PREFIX_validate_time(char[]);
     int __PREFIX_validate_datetime(char[]);
 
 #endif

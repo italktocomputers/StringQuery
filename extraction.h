@@ -22,14 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <stdlib.h>
-#include <string.h>
 #include "common.h"
-#include "library.h"
 
 #ifndef EXTRACTION_H
 #define EXTRACTION_H
 
+    char** __PREFIX_get_statements(char[]);
     char* __PREFIX_get_resource(char[]);
     char* __PREFIX_get_resource_type(char[]);
     char* __PREFIX_get_operator(char[]);
