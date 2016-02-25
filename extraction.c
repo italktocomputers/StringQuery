@@ -5,7 +5,7 @@
 #include "library.h"
 #include "extraction.h"
 
-char** __PREFIX_get_statements(char code[]) {
+char** __PREFIX_get_statements(char code[], int* k) {
     int i = 0;
     int x = 0;
     int cursor = 0;
@@ -30,9 +30,16 @@ char** __PREFIX_get_statements(char code[]) {
 
         if ((code[cursor] == '&' || code[cursor] == '|' || code[cursor] == '\0') && inside_string == 0) {
             // Statement found so move from character buffer to array.
-            buffer[i] = '\0';
 
-            char* p = (char*)malloc(strlen(buffer));
+            if (code[cursor] == '\0') {
+                buffer[i] = '&';
+            } else {
+                buffer[i] = code[cursor];
+            }
+
+            buffer[++i] = '\0';
+
+            char* p = (char*)malloc(i+1);
             strcpy(p, buffer);
 
             statements[x++] = p;
@@ -49,6 +56,7 @@ char** __PREFIX_get_statements(char code[]) {
         cursor++;
     }
 
+    *k = x;
     return statements;
 }
 

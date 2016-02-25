@@ -36,13 +36,8 @@ SOFTWARE.
         char* conjunctive;
     };
 
-    void __PREFIX_parse(char[], int*, struct Statement*[], int*);
-    int __PREFIX_get_statement(char[], int*, struct Statement*[], int*);
-    int __PREFIX_is_end(char[], int*);
-
+    void __PREFIX_parse(char[]);
     int __PREFIX_clean(char[], int, char*);
-
-
     void __PREFIX_print_error(char[], int, char[], int);
     void __PREFIX_exception(char[], char[], int);
 

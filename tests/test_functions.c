@@ -98,7 +98,8 @@ void __PREFIX_test_char_pointer_array(char* test_name, char** expected, int leng
 }
 
 void __PREFIX_test_get_statements(char* test_name, char* stringQuery, char** expected, int length) {
-    char** actual = __PREFIX_get_statements(stringQuery);
+    int k;
+    char** actual = __PREFIX_get_statements(stringQuery, &k);
     __PREFIX_test_char_pointer_array(test_name, expected, length, actual);
 }
 
@@ -129,6 +130,11 @@ void __PREFIX_test_get_conjunctive(char* test_name, char* stringQuery, char* con
 
 void __PREFIX_test_validate_resource(char* test_name, char* resource, int expected_code) {
     int actual_code = __PREFIX_validate_resource(resource);
+    __PREFIX_test_int(test_name, expected_code, actual_code);
+}
+
+void __PREFIX_test_validate_resource_type(char* test_name, char* resource_type, int expected_code) {
+    int actual_code = __PREFIX_validate_resource_type(resource_type);
     __PREFIX_test_int(test_name, expected_code, actual_code);
 }
 

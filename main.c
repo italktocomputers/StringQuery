@@ -43,8 +43,6 @@ int main(int argc, const char* argv[]) {
     int code_format_switch = 0;
     char code_format[50];
 
-    struct Statement* sts[STATEMENTS_ARRAY_LENGTH];
-
     for (i=1; i<argc; i++) {
         if (strcmp(argv[i], "--code") == 0) {
             code_switch = 1;
@@ -118,8 +116,9 @@ int main(int argc, const char* argv[]) {
         strncpy(decoded_code, code, CODE_BUFFER_LENGTH);
     }
 
-    __PREFIX_parse(decoded_code, &cursor, sts, &sts_index);
+    __PREFIX_parse(decoded_code);
 
+    /*
     if (strcmp(export_type, "JSON") == 0) {
         __PREFIX_toJSON(sts, sts_index);
     } else if(strcmp(export_type, "SQL") == 0) {
@@ -128,6 +127,7 @@ int main(int argc, const char* argv[]) {
         printf("ERROR: %s\n", MSG_NO_EXPORT_SUPPORT);
         exit(DEFAULT_EXIT);
     }
-
+    */
+    
     return 0;
 }

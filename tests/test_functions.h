@@ -40,6 +40,7 @@ SOFTWARE.
     void __PREFIX_test_get_conjunctive(char* test_name, char* stringQuery, char* filter);
 
     void __PREFIX_test_validate_resource(char* test_name, char* resource, int expected_code);
+    void __PREFIX_test_validate_resource_type(char* test_name, char* resource_type, int expected_code);
     void __PREFIX_test_validate_operator(char* test_name, char* operator, int expected_code);
     void __PREFIX_test_validate_conjunctive(char* test_name, char* conj, int expected_code);
     void __PREFIX_test_validate_var(char* test_name, char* var, int expected_code);

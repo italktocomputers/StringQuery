@@ -83,6 +83,64 @@ int __PREFIX_validate_resource(char value[]) {
 }
 
 //
+// A resource type can be one of the following:
+// - String
+// - Int8
+// - uInt8
+// - Int16
+// - uInt16
+// - Int24
+// - uInt24
+// - Int32
+// - uInt32
+// - Int64
+// - uInt64
+// - Double
+// - Date
+// - Time
+// - DateTime
+// - NULL
+// - @
+//
+int __PREFIX_validate_resource_type(char code[]) {
+    if (strcmp(code, "String") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "Int8") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "uInt8") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "Int16") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "uInt16") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "Int24") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "uInt24") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "Int32") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "uInt32") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "Int64") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "uInt64") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "Double") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "Date") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "Time") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "DateTime") == 0) {
+        return NO_ERROR;
+    } else if (strcmp(code, "@") == 0) {
+        return NO_ERROR;
+    } else {
+        return ERROR_INVALID_RESOURCE_TYPE;
+    }
+}
+
+//
 // An operator can be one of the following values:
 //     !=
 //     >

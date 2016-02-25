@@ -27,7 +27,7 @@ SOFTWARE.
 #ifndef EXTRACTION_H
 #define EXTRACTION_H
 
-    char** __PREFIX_get_statements(char[]);
+    char** __PREFIX_get_statements(char[], int*);
     char* __PREFIX_get_resource(char[]);
     char* __PREFIX_get_resource_type(char[]);
     char* __PREFIX_get_operator(char[]);

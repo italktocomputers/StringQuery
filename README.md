@@ -56,7 +56,6 @@ The following data types are supported:
     Date
     Time
     DateTime
-    NULL
     @
 
 The last type is a variable which tells the parser you are specifying a
@@ -140,3 +139,7 @@ Parser Options:
     --code          <code>                      Parse code   
     --code-format   <urlencoded|nothing>        What format is the code in    Defaults to nothing
     --export        <JSON|SQL>                  Export to what format         Defaults to JSON
+
+To Do:
+
+    - Make files.

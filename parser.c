@@ -30,18 +30,6 @@ SOFTWARE.
 #include "extraction.h"
 #include "validation.h"
 
-int __PREFIX_is_end(char code[], int* cursor) {
-    if (code[*cursor+1] != '\0') {
-        // We are not at the end of the code so we have more to process.
-        // Next stop: get_resource()
-        (*cursor)++;
-        return 1;
-    }
-
-    // No more code to process since we reached a '\0'
-    return 0;
-}
-
 void __PREFIX_print_error(char code[], int cursor, char msg[], int exit_code) {
     int i = 0;
 
@@ -95,29 +83,35 @@ int __PREFIX_clean(char value[], int length, char* str) {
     return x;
 }
 
-int __PREFIX_get_statement(char code[], int* cursor, struct Statement* sts[], int* sts_index) {
-    struct Statement* pst = (struct Statement*)malloc(sizeof(struct Statement));
-    char* type = (char*)malloc(sizeof(char[6]));
-    __PREFIX_get_resource(code);
-    __PREFIX_get_operator(code);
-    __PREFIX_get_filter(code);
-
-    int end = __PREFIX_is_end(code, cursor);
-
-    if (end != 0)
-        __PREFIX_get_conjunctive(code);
-
-    sts[(*sts_index)++] = pst;
-
-    return end;
-}
-
-void __PREFIX_parse(char code[], int* cursor, struct Statement* sts[], int* sts_index) {
+void __PREFIX_parse(char code[]) {
+    int i;
     int length;
     int new_length;
+    int st_length;
+    char* new_code = (char*)malloc(CODE_BUFFER_LENGTH+1);
 
     length = strlen(code);
-    new_length = __PREFIX_clean(code, length, code);
+    new_length = __PREFIX_clean(code, length, new_code);
 
-    while (__PREFIX_get_statement(code, cursor, sts, sts_index) != 0);
+    char** sts = __PREFIX_get_statements(new_code, &st_length);
+
+    for (i=0; i<st_length; i++) {
+        char* resource_name = __PREFIX_get_resource(sts[i]);
+        char* resource_type = __PREFIX_get_resource_type(sts[i]);
+        char* operator = __PREFIX_get_operator(sts[i]);
+        char* filter = __PREFIX_get_filter(sts[i]);
+        char* conjunctive = __PREFIX_get_conjunctive(sts[i]);
+
+        __PREFIX_validate_resource(resource_name);
+        __PREFIX_validate_resource_type(resource_type);
+        __PREFIX_validate_operator(operator);
+        __PREFIX_validate_conjunctive(conjunctive);
+
+        printf("Statement: %s\n", sts[i]);
+        printf("Resource: %s\n", resource_name);
+        printf("Resource type: %s\n", resource_type);
+        printf("Operator: %s\n", operator);
+        printf("Filter: %s\n", filter);
+        printf("Conjunctive: %s\n", conjunctive);
+    }
 }

@@ -84,9 +84,9 @@ char* stringQuery13 = "User.CreatedDate:DateTime=2016-01-02 03:04:05";
 
 int main(int argc, const char* argv[]) {
     char* expected[3];
-    char* statement1 = "User.FirstName:String='Andrew'";
-    char* statement2 = "User.LastName:String='Schools'";
-    char* statement3 = "User.Dept:String=('Engineering','Math')";
+    char* statement1 = "User.FirstName:String='Andrew'&";
+    char* statement2 = "User.LastName:String='Schools'&";
+    char* statement3 = "User.Dept:String=('Engineering','Math')&";
 
     expected[0] = statement1;
     expected[1] = statement2;
@@ -134,17 +134,35 @@ int main(int argc, const char* argv[]) {
     __PREFIX_test_validate_resource("Test validate_resource bad chr =", "FirstName=", ERROR_INVALID_CHR);
     __PREFIX_test_validate_resource("Test validate_resource bad chr !", "FirstName!", ERROR_INVALID_CHR);
 
+    __PREFIX_test_validate_resource_type("Test validate_resource_type String", "String", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type Int8", "Int8", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type uInt8", "uInt8", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type Int16", "Int16", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type uInt16", "uInt16", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type Int24", "Int24", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type uInt24", "uInt24", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type Int32", "Int32", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type uInt32", "uInt32", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type Int64", "Int64", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type uInt64", "uInt64", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type Double", "Double", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type DateTime", "DateTime", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type Date", "Date", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type Time", "Time", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type @", "@", NO_ERROR);
+    __PREFIX_test_validate_resource_type("Test validate_resource_type bad", "a", ERROR_INVALID_RESOURCE_TYPE);
+
     __PREFIX_test_validate_operator("Test validate_operator =", "=", NO_ERROR);
     __PREFIX_test_validate_operator("Test validate_operator !=", "!=", NO_ERROR);
     __PREFIX_test_validate_operator("Test validate_operator >", ">", NO_ERROR);
     __PREFIX_test_validate_operator("Test validate_operator >=", ">=", NO_ERROR);
     __PREFIX_test_validate_operator("Test validate_operator <", "<", NO_ERROR);
     __PREFIX_test_validate_operator("Test validate_operator <=", "<=", NO_ERROR);
-    __PREFIX_test_validate_operator("Test validate_operator %", "%", ERROR_INVALID_OPERATOR);
+    __PREFIX_test_validate_operator("Test validate_operator bad", "%", ERROR_INVALID_OPERATOR);
 
     __PREFIX_test_validate_conjunctive("Test validate_conjunctive ok &", "&", NO_ERROR);
     __PREFIX_test_validate_conjunctive("Test validate_conjunctive ok |", "|", NO_ERROR);
-    __PREFIX_test_validate_conjunctive("Test validate_conjunctive bad %", "%", ERROR_INVALID_CONJUNCTIVE);
+    __PREFIX_test_validate_conjunctive("Test validate_conjunctive bad", "%", ERROR_INVALID_CONJUNCTIVE);
 
     __PREFIX_test_validate_var("Test validate_var ok", "@FirstName", NO_ERROR);
     __PREFIX_test_validate_var("Test validate_var no identifier", "FirstName", ERROR_VAR_MUST_START_WITH_IDENTIFIER);
