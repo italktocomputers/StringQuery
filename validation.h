@@ -31,6 +31,7 @@ SOFTWARE.
     int __PREFIX_validate_resource_type(char[]);
     int __PREFIX_validate_operator(char[]);
     int __PREFIX_validate_conjunctive(char[]);
+    int __PREFIX_validate_filter(char[]);
     int __PREFIX_validate_var(char code[]);
     int __PREFIX_validate_string(char[]);
     int __PREFIX_validate_int(char[]);

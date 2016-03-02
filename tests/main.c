@@ -113,6 +113,15 @@ int main(int argc, const char* argv[]) {
     __PREFIX_test_get_conjunctive("Test get_conjunctive &", stringQuery11, "&");
     __PREFIX_test_get_conjunctive("Test get_conjunctive |", stringQuery12, "|");
 
+    char* list = "item1,item2,'\"item3'";
+
+    char* expected_list[3];
+    expected_list[0] = "item1";
+    expected_list[1] = "item2";
+    expected_list[2] = "'\"item3'";
+
+    __PREFIX_test_expand_list("Test expand_list", list, 3, expected_list);
+
     __PREFIX_test_validate_resource("Test validate_resource ok", "User.FirstName", NO_ERROR);
     __PREFIX_test_validate_resource("Test validate_resource too many periods", "User..FirstName", ERROR_INVALID_RESOURCE);
     __PREFIX_test_validate_resource("Test validate_resource no period", "FirstName", ERROR_INVALID_RESOURCE);

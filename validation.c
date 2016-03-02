@@ -177,6 +177,21 @@ int __PREFIX_validate_conjunctive(char code[]) {
     return ERROR_INVALID_CONJUNCTIVE;
 }
 
+int __PREFIX_validate_filter(char code[]) {
+    int xcode;
+
+    if (code[0] == '(') {
+        xcode = __PREFIX_validate_list(code);
+
+        if (xcode != 0)
+            return xcode;
+
+        // Expand list so we can validate each value
+    }
+
+    return NO_ERROR;
+}
+
 //
 // A variable must start with a '@' and is limited with what characters can be
 // used in its name.

@@ -215,3 +215,54 @@ char* __PREFIX_get_conjunctive(char code[]) {
 
     return p_conjunctive;
 }
+
+char** __PREFIX_expand_list(char code[]) {
+    int i = 0;
+    int x = 0;
+    int cursor = 0;
+    int count = 1;
+    int inside_string = 0;
+    char quote_type; // remember starting quote
+    char buffer[100];
+
+    // Run through the list once to see how many items we need to collect.
+    while (1) {
+        if (code[cursor] == ',' && inside_string == 0)
+            count++;
+
+        __PREFIX_inside_string(&inside_string, &quote_type, code[cursor]);
+
+        if (code[cursor] == '\0')
+            break;
+
+        cursor++;
+    }
+
+    char** list = (char**)malloc(sizeof(char*)*count);
+    inside_string = 0; // Reset from above
+    cursor = 0; // Reset from above
+
+    while (1) {
+        __PREFIX_inside_string(&inside_string, &quote_type, code[cursor]);
+
+        if ((code[cursor] == ',' && inside_string == 0) || code[cursor] == '\0') {
+            buffer[i] = '\0';
+
+            char* tmp = (char*)malloc(i+1);
+            strcpy(tmp, buffer);
+
+            list[x++] = tmp;
+
+            i = 0;
+        } else {
+            buffer[i++] = code[cursor];
+        }
+
+        if (code[cursor] == '\0')
+            break;
+
+        cursor++;
+    }
+
+    return list;
+}

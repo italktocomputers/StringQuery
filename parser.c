@@ -102,10 +102,45 @@ void __PREFIX_parse(char code[]) {
         char* filter = __PREFIX_get_filter(sts[i]);
         char* conjunctive = __PREFIX_get_conjunctive(sts[i]);
 
-        __PREFIX_validate_resource(resource_name);
-        __PREFIX_validate_resource_type(resource_type);
-        __PREFIX_validate_operator(operator);
-        __PREFIX_validate_conjunctive(conjunctive);
+        int filter_xcode;
+        int resource_xcode = __PREFIX_validate_resource(resource_name);
+        int resource_type_xcode = __PREFIX_validate_resource_type(resource_type);
+        int operator_xcode = __PREFIX_validate_operator(operator);
+        int conjunctive_xcode = __PREFIX_validate_conjunctive(conjunctive);
+
+        if (strcmp(resource_type, "String") == 0) {
+            filter_xcode = __PREFIX_validate_string(filter);
+        } else if (strcmp(resource_type, "Double") == 0) {
+            filter_xcode = __PREFIX_validate_double(filter);
+        } else if (strcmp(resource_type, "DateTime") == 0) {
+            filter_xcode = __PREFIX_validate_datetime(filter);
+        } else if (strcmp(resource_type, "Date") == 0) {
+            filter_xcode = __PREFIX_validate_date(filter);
+        } else if (strcmp(resource_type, "Time") == 0) {
+            filter_xcode = __PREFIX_validate_time(filter);
+        } else if (strcmp(resource_type, "@") == 0) {
+            filter_xcode = __PREFIX_validate_var(filter);
+        } else if (strcmp(resource_type, "Int8") == 0) {
+            filter_xcode = __PREFIX_validate_int8_signed(filter);
+        } else if (strcmp(resource_type, "uInt8") == 0) {
+            filter_xcode = __PREFIX_validate_int8(filter);
+        } else if (strcmp(resource_type, "Int16") == 0) {
+            filter_xcode = __PREFIX_validate_int16_signed(filter);
+        } else if (strcmp(resource_type, "uInt16") == 0) {
+            filter_xcode = __PREFIX_validate_int16(filter);
+        } else if (strcmp(resource_type, "Int24") == 0) {
+            filter_xcode = __PREFIX_validate_int24_signed(filter);
+        } else if (strcmp(resource_type, "uInt24") == 0) {
+            filter_xcode = __PREFIX_validate_int24(filter);
+        } else if (strcmp(resource_type, "Int32") == 0) {
+            filter_xcode = __PREFIX_validate_int32_signed(filter);
+        } else if (strcmp(resource_type, "uInt32") == 0) {
+            filter_xcode = __PREFIX_validate_int32(filter);
+        } else if (strcmp(resource_type, "Int64") == 0) {
+            filter_xcode = __PREFIX_validate_int64_signed(filter);
+        } else if (strcmp(resource_type, "uInt64") == 0) {
+            filter_xcode = __PREFIX_validate_int64(filter);
+        }
 
         printf("Statement: %s\n", sts[i]);
         printf("Resource: %s\n", resource_name);

@@ -33,5 +33,6 @@ SOFTWARE.
     char* __PREFIX_get_operator(char[]);
     char* __PREFIX_get_filter(char[]);
     char* __PREFIX_get_conjunctive(char[]);
+    char** __PREFIX_expand_list(char[]);
 
 #endif

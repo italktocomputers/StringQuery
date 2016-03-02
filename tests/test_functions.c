@@ -128,6 +128,11 @@ void __PREFIX_test_get_conjunctive(char* test_name, char* stringQuery, char* con
     __PREFIX_test_string(test_name, conjunctive, conjunctive2);
 }
 
+void __PREFIX_test_expand_list(char* test_name, char* list, int length, char** expected) {
+    char** actual = __PREFIX_expand_list(list);
+    __PREFIX_test_char_pointer_array(test_name, expected, length, actual);
+}
+
 void __PREFIX_test_validate_resource(char* test_name, char* resource, int expected_code) {
     int actual_code = __PREFIX_validate_resource(resource);
     __PREFIX_test_int(test_name, expected_code, actual_code);

@@ -3,6 +3,19 @@
 #include <math.h>
 #include "library.h"
 
+void __PREFIX_inside_string(int* inside_string, char* quote_type, char chr) {
+    if (chr == '\'' || chr == '"') {
+        if (*inside_string == 1 && *quote_type == chr) {
+            // We found the ending quote so we are no longer in a string
+            *inside_string = 0;
+        } else {
+            // Found a starting quote so we are now in a string
+            *inside_string = 1;
+            *quote_type = chr;
+        }
+    }
+}
+
 int __PREFIX_substr(char* str, int start, int end, char* substr, int max) {
     int i = 0;
     char buffer[100];
