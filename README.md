@@ -1,7 +1,7 @@
 StringQuery v 0.1
 
 
-A little query language that transcompiles to SQL.
+A little query language that transcompiles to SQL. (non-working state)
 
 
 WARNING: THIS SOFTWARE IS IN ALPHA AND SHOULD NOT BE USED IN PRODUCTION.  I HAVE
@@ -143,3 +143,6 @@ Parser Options:
 To Do:
 
     - Make files.
+    - Parser needs to recognize exit codes from validators.
+    - Fix SQL and JSON translators
+    - Enable transcompilation
