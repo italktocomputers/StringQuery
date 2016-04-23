@@ -89,6 +89,7 @@ void __PREFIX_parse(char code[]) {
     int new_length;
     int st_length;
     char* new_code = (char*)malloc(CODE_BUFFER_LENGTH+1);
+    char msg[100];
 
     length = strlen(code);
     new_length = __PREFIX_clean(code, length, new_code);
@@ -140,6 +141,31 @@ void __PREFIX_parse(char code[]) {
             filter_xcode = __PREFIX_validate_int64_signed(filter);
         } else if (strcmp(resource_type, "uInt64") == 0) {
             filter_xcode = __PREFIX_validate_int64(filter);
+        }
+
+        if (resource_xcode != 0) {
+            sprintf(msg, "PARSE ERROR RESOURCE %i\n", resource_xcode);
+            __PREFIX_print_error(sts[i], 0, msg, resource_xcode);
+        }
+
+        if (resource_type_xcode != 0) {
+            sprintf(msg, "PARSE ERROR RESOURCE_TYPE %i\n", resource_type_xcode);
+            __PREFIX_print_error(sts[i], 0, msg, resource_type_xcode);
+        }
+
+        if (operator_xcode != 0) {
+            sprintf(msg, "PARSE ERROR OPERATOR %i\n", operator_xcode);
+            __PREFIX_print_error(sts[i], 0, msg, operator_xcode);
+        }
+
+        if (filter_xcode != 0) {
+            sprintf(msg, "PARSE ERROR FILTER %i\n", filter_xcode);
+            __PREFIX_print_error(sts[i], 0, msg, filter_xcode);
+        }
+
+        if (conjunctive_xcode != 0) {
+            sprintf(msg, "PARSE ERROR CONJUNCTIVE %i\n", conjunctive_xcode);
+            __PREFIX_print_error(sts[i], 0, msg, conjunctive_xcode);
         }
 
         printf("Statement: %s\n", sts[i]);
