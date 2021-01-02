@@ -27,12 +27,12 @@ SOFTWARE.
 #ifndef EXTRACTION_H
 #define EXTRACTION_H
 
-    char** __PREFIX_get_statements(char[], int*);
-    char* __PREFIX_get_resource(char[]);
-    char* __PREFIX_get_resource_type(char[]);
-    char* __PREFIX_get_operator(char[]);
-    char* __PREFIX_get_filter(char[]);
-    char* __PREFIX_get_conjunctive(char[]);
-    char** __PREFIX_expand_list(char[]);
+char **__PREFIX_get_statements(char[], int *);
+char *__PREFIX_get_resource(char[]);
+char *__PREFIX_get_resource_type(char[]);
+char *__PREFIX_get_operator(char[]);
+char *__PREFIX_get_filter(char[]);
+char *__PREFIX_get_conjunctive(char[]);
+char **__PREFIX_expand_list(char[]);
 
 #endif

@@ -27,6 +27,6 @@ SOFTWARE.
 #ifndef JSON_H
 #define JSON_H
 
-    void __PREFIX_toJSON(struct Statement* sts[], int sts_index);
+  void __PREFIX_toJSON(struct Statement* sts[], int sts_index);
 
 #endif

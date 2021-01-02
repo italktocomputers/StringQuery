@@ -27,18 +27,18 @@ SOFTWARE.
 #ifndef PARSER_H
 #define PARSER_H
 
-    struct Statement {
-        char* resource;
-        char* type;
-        char* operator;
-        char* filter;
-        char* filter_type; // "Scalar" or "List"
-        char* conjunctive;
-    };
+struct Statement {
+  char *resource;
+  char *type;
+  char *operator;
+  char *filter;
+  char *filter_type; // "Scalar" or "List"
+  char *conjunctive;
+};
 
-    void __PREFIX_parse(char[]);
-    int __PREFIX_clean(char[], int, char*);
-    void __PREFIX_print_error(char[], int, char[], int);
-    void __PREFIX_exception(char[], char[], int);
+void __PREFIX_parse(char[]);
+int __PREFIX_clean(char[], int, char *);
+void __PREFIX_print_error(char[], int, char[], int);
+void __PREFIX_exception(char[], char[], int);
 
 #endif

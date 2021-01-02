@@ -28,11 +28,11 @@ SOFTWARE.
 #ifndef SQL_H
 #define SQL_H
 
-    void __PREFIX_buffer_checks(struct Statement* st);
-    void __PREFIX_listToSQL(struct Statement* st, char* sql);
-    void __PREFIX_get_resource_name(char resource[RESOURCE_MAX], char* id);
-    int __PREFIX_in_array(char* arr[], char item[], int length);
-    int __PREFIX_unique(char* resources[], char* unique_resources[MAX_RESOURCES], int length);
-    void __PREFIX_toSQL(struct Statement* sts[], int sts_index);
+  void __PREFIX_buffer_checks(struct Statement* st);
+  void __PREFIX_listToSQL(struct Statement* st, char* sql);
+  void __PREFIX_get_resource_name(char resource[RESOURCE_MAX], char* id);
+  int __PREFIX_in_array(char* arr[], char item[], int length);
+  int __PREFIX_unique(char* resources[], char* unique_resources[MAX_RESOURCES], int length);
+  void __PREFIX_toSQL(struct Statement* sts[], int sts_index);
 
 #endif

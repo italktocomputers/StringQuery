@@ -27,9 +27,9 @@ SOFTWARE.
 #ifndef LIBRARY_H
 #define LIBRARY_H
 
-    void __PREFIX_inside_string(int*, char*, char);
-    int __PREFIX_substr(char*, int, int, char*, int);
-    int __PREFIX_hex_to_dec(char[], int);
-    void __PREFIX_urldecode(char[], char*);
+  void __PREFIX_inside_string(int*, char*, char);
+  int __PREFIX_substr(char*, int, int, char*, int);
+  int __PREFIX_hex_to_dec(char[], int);
+  void __PREFIX_urldecode(char[], char*);
 
 #endif

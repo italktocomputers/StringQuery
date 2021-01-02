@@ -27,28 +27,28 @@ SOFTWARE.
 #ifndef VALIDATION_H
 #define VALIDATION_H
 
-    int __PREFIX_validate_resource(char[]);
-    int __PREFIX_validate_resource_type(char[]);
-    int __PREFIX_validate_operator(char[]);
-    int __PREFIX_validate_conjunctive(char[]);
-    int __PREFIX_validate_filter(char[]);
-    int __PREFIX_validate_var(char code[]);
-    int __PREFIX_validate_string(char[]);
-    int __PREFIX_validate_int(char[]);
-    int __PREFIX_validate_int8(char[]);
-    int __PREFIX_validate_int8_signed(char[]);
-    int __PREFIX_validate_int16(char[]);
-    int __PREFIX_validate_int16_signed(char[]);
-    int __PREFIX_validate_int24(char[]);
-    int __PREFIX_validate_int24_signed(char[]);
-    int __PREFIX_validate_int32(char[]);
-    int __PREFIX_validate_int32_signed(char[]);
-    int __PREFIX_validate_int64(char[]);
-    int __PREFIX_validate_int64_signed(char[]);
-    int __PREFIX_validate_double(char[]);
-    int __PREFIX_validate_list(char[]);
-    int __PREFIX_validate_date(char[]);
-    int __PREFIX_validate_time(char[]);
-    int __PREFIX_validate_datetime(char[]);
+  int __PREFIX_validate_resource(char[]);
+  int __PREFIX_validate_resource_type(char[]);
+  int __PREFIX_validate_operator(char[]);
+  int __PREFIX_validate_conjunctive(char[]);
+  int __PREFIX_validate_filter(char[]);
+  int __PREFIX_validate_var(char code[]);
+  int __PREFIX_validate_string(char[]);
+  int __PREFIX_validate_int(char[]);
+  int __PREFIX_validate_int8(char[]);
+  int __PREFIX_validate_int8_signed(char[]);
+  int __PREFIX_validate_int16(char[]);
+  int __PREFIX_validate_int16_signed(char[]);
+  int __PREFIX_validate_int24(char[]);
+  int __PREFIX_validate_int24_signed(char[]);
+  int __PREFIX_validate_int32(char[]);
+  int __PREFIX_validate_int32_signed(char[]);
+  int __PREFIX_validate_int64(char[]);
+  int __PREFIX_validate_int64_signed(char[]);
+  int __PREFIX_validate_double(char[]);
+  int __PREFIX_validate_list(char[]);
+  int __PREFIX_validate_date(char[]);
+  int __PREFIX_validate_time(char[]);
+  int __PREFIX_validate_datetime(char[]);
 
 #endif
